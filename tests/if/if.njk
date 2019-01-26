@@ -6,14 +6,21 @@
 
 {% if foo %}{% set bar = 'true' %}{% endif %}
 
-{# TODO: Figure out how to placehold within a tag #}
-{#<div {% if bar %}class="attribute"{% endif %}></div>#}
+<div {% if bar %}class="attribute"{% endif %}></div>
 
+<div
+  {% if bar %}
+  class="attribute"{% endif %}></div>
 
 <div {% if bar %}{{ attribute }}{% endif %}></div>
 
 <div>
-  {% if foo %}<span>foo</span>{% endif %}
+{% if foo %}<span>foo</span>{% endif %}
 
-  {% if bar %}<div>bar</div>{% endif %}
+{% if bar %}<div>bar</div>{% endif %}
 </div>
+
+{% if foo %}
+{% if bar %}
+{% endif %}
+{% endif %}
