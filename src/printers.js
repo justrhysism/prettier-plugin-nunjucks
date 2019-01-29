@@ -23,6 +23,33 @@ const { mapDoc } = require("prettier").doc.utils;
 
 let hoistedTextToDoc;
 
+let placeholderIncrement = 0;
+
+function getPlaceholderTags(acc) {
+  const placeholder = `Placeholder-${placeholderIncrement}`;
+  placeholderIncrement++;
+
+  const lastTagStartChar = acc.lastIndexOf("<");
+  const lastTagEndChar = acc.lastIndexOf(">");
+  const withinTag = lastTagStartChar > lastTagEndChar;
+  const selfClosingPlaceholder = false;
+
+  const tagOpenStartChar = withinTag ? "o-" : "\n<";
+  const tagOpenEndChar = withinTag
+    ? " "
+    : selfClosingPlaceholder
+    ? "/>\n"
+    : ">\n";
+  const tagCloseStartChar = withinTag ? "c-" : `\n</`;
+
+  return {
+    openTag: `${tagOpenStartChar}${placeholder}${tagOpenEndChar}`,
+    closingTag: selfClosingPlaceholder
+      ? ""
+      : `${tagCloseStartChar}${placeholder}${tagOpenEndChar}`
+  };
+}
+
 function print(path, options, print) {
   const node = path.getValue();
 
@@ -30,7 +57,7 @@ function print(path, options, print) {
   // 2. Run the place-held doc through the HTML formatter
   // 3. Upon return, re-instate the Nunjucks template tags with formatting
 
-  const PLACEHOLDER_REGEX = /Placeholder-L\d+-C\d+/;
+  const PLACEHOLDER_REGEX = /Placeholder-\d+/;
   const placeholderMap = new Map();
 
   function tempExtractTemplateData(acc, node) {
@@ -39,37 +66,14 @@ function print(path, options, print) {
     }
 
     if (node.children) {
-      return acc + node.children.reduce(tempExtractTemplateData, "");
+      return node.children.reduce(tempExtractTemplateData, acc);
     }
 
-    const placeholder = `Placeholder-L${node.lineno}-C${node.colno}`;
-    let openTag = "";
-    let closingTag = "";
+    const { openTag, closingTag } = getPlaceholderTags(acc);
     let printOpen = "";
     let printClose = "";
 
-    const lastTagStartChar = acc.lastIndexOf("<");
-    const lastTagEndChar = acc.lastIndexOf(">");
-    const withinTag = lastTagStartChar > lastTagEndChar;
-    const selfClosingPlaceholder = false;
-
-    const tagOpenStartChar = withinTag ? "o-" : "\n<";
-    const tagOpenEndChar = withinTag
-      ? " "
-      : selfClosingPlaceholder
-      ? "/>\n"
-      : ">\n";
-    const tagCloseStartChar = withinTag ? "c-" : `\n</`;
-
-    // TODO split out elsewhere
-    // Handle placeholders
-    switch (node.type) {
-      case "If":
-      case "For":
-        openTag = `${tagOpenStartChar}${placeholder}${tagOpenEndChar}`;
-        acc += openTag;
-        closingTag = `${tagCloseStartChar}${placeholder}${tagOpenEndChar}`;
-    }
+    acc += openTag;
 
     // TODO Split out elsewhere
     // Handle Printing
@@ -92,17 +96,36 @@ function print(path, options, print) {
 
     placeholderMap.set(openTag.trim(), printOpen);
 
-    if (node.body && node.body.children) {
-      acc += node.body.children.reduce(tempExtractTemplateData, "");
-    }
-
-    if (selfClosingPlaceholder) {
-      closingTag = "";
-    } else {
+    if (closingTag.trim()) {
       placeholderMap.set(closingTag.trim(), printClose);
     }
 
-    return acc + closingTag;
+    if (node.body && node.body.children) {
+      // TODO: This reducer doesn't work inside a tag - renders tags within
+      acc = node.body.children.reduce(tempExtractTemplateData, acc);
+    }
+
+    acc += closingTag;
+
+    if (node.else_ && node.else_.children) {
+      const elseTags = getPlaceholderTags(acc);
+      const elseOpenTag = elseTags.openTag;
+      const elseClosingTag = elseTags.closingTag;
+
+      placeholderMap.set(elseOpenTag.trim(), "");
+      if (closingTag.trim()) {
+        const originalClosing = placeholderMap.get(closingTag.trim());
+        placeholderMap.set(elseClosingTag.trim(), originalClosing);
+        placeholderMap.set(closingTag.trim(), "{% else %}");
+      }
+
+      acc += `${elseOpenTag}${node.else_.children.reduce(
+        tempExtractTemplateData,
+        ""
+      )}${elseClosingTag}`;
+    }
+
+    return acc;
   }
 
   // 1. Install placeholders
@@ -125,7 +148,7 @@ function print(path, options, print) {
       if (partIsPlaceholder) {
         const original = placeholderMap.get(part);
 
-        if (original) {
+        if (original || original === "") {
           parts.push(original);
           return;
         }
@@ -142,7 +165,7 @@ function print(path, options, print) {
       if (contentsIsPlaceholder) {
         const original = placeholderMap.get(part.contents);
 
-        if (original) {
+        if (original || original === "") {
           parts.push(Object.assign({}, part, { contents: original }));
           return;
         }

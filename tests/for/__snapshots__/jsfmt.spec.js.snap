@@ -22,10 +22,17 @@ class="attribute"
 
 <div>
 
-{% for item in items %}<div>bar</div>{% endfor %}
+{% for item in items %}<div>bar</div>{% else %}<div>foo</div>{% endfor %}
 </div>
 
 {% for item in items %}
+{% for item2 in items2 %}
+{% endfor %}
+{% endfor %}
+
+{% for item in items %}
+<div>{{ item }}</div>
+{% else %}
 {% for item2 in items2 %}
 {% endfor %}
 {% endfor %}
@@ -44,7 +51,9 @@ class="attribute"
   <div><span>Foo</span></div>
 {% endfor %}
 
-{% for item in items %} {% endfor %}
+{% for item in items %}
+
+{% endfor %}
 
 <div {% for item in items %} class="attribute" {% endfor %}></div>
 
@@ -53,10 +62,24 @@ class="attribute"
 <div>
   {% for item in items %}
     <div>bar</div>
+  {% else %}
+
+
+    <div>foo</div>
   {% endfor %}
 </div>
 
 {% for item in items %}
+  {% for item2 in items2 %} {% endfor %}
+{% endfor %}
+
+{% for item in items %}
+  <div>
+
+  </div>
+{% else %}
+
+
   {% for item2 in items2 %} {% endfor %}
 {% endfor %}
 

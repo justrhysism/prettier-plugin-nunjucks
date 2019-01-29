@@ -10,6 +10,7 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
 {% if foo %}{% set bar = 'true' %}{% endif %}
 
 <div {% if bar %}class="attribute"{% endif %}></div>
+<div {% if bar %}class="attribute"{%  else %}class="attribute"{% endif %}></div>
 
 <div
   {% if bar %}
@@ -27,6 +28,20 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
 {% if bar %}
 {% endif %}
 {% endif %}
+
+{% if bar %}
+{% else %}
+{% endif %}
+
+{% if foo %}
+{% if bar %}
+<div>foo-bar</div>
+{% else %}
+{% endif %}
+{% else %}
+{% if bar %}
+{% endif %}
+{% endif %}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <div>Foo</div>
 
@@ -38,13 +53,23 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
   <div><span>Foo</span></div>
 {% endif %}
 
-{% if foo %} {% endif %}
+{% if foo %}
+
+{% endif %}
+
+<div {% if bar %} class="attribute" {% endif %}></div>
+<div
+  {% if bar %}
+  class="attribute"
+  {% else %}
+
+  class="attribute"
+  {% endif %}
+></div>
 
 <div {% if bar %} class="attribute" {% endif %}></div>
 
-<div {% if bar %} class="attribute" {% endif %}></div>
-
-<div {% if bar %} {% endif %}></div>
+<div {% if bar %}   {% endif %}></div>
 
 <div>
   {% if foo %}
@@ -57,6 +82,22 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
 </div>
 
 {% if foo %}
+  {% if bar %} {% endif %}
+{% endif %}
+
+{% if bar %} {% else %}
+
+ {% endif %}
+
+{% if foo %}
+  {% if bar %}
+    <div>foo-bar</div>
+  {% else %}
+
+   {% endif %}
+{% else %}
+
+
   {% if bar %} {% endif %}
 {% endif %}
 
