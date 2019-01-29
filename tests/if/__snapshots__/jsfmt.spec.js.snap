@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`if.njk - nunjucks-verify: if.njk 1`] = `
+<div>Foo</div>
+
+{% if foo %}<span></span>{% endif %}
+
+{% if foo %}<div><span>Foo</span></div>{% endif %}
+
+{% if foo %}{% set bar = 'true' %}{% endif %}
+
+<div {% if bar %}class="attribute"{% endif %}></div>
+
+<div
+  {% if bar %}
+  class="attribute"{% endif %}></div>
+
+<div {% if bar %}{{ attribute }}{% endif %}></div>
+
+<div>
+{% if foo %}<span>foo</span>{% endif %}
+
+{% if bar %}<div>bar</div>{% endif %}
+</div>
+
+{% if foo %}
+{% if bar %}
+{% endif %}
+{% endif %}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<div>Foo</div>
+
+{% if foo %}
+  <span></span>
+{% endif %}
+
+{% if foo %}
+  <div><span>Foo</span></div>
+{% endif %}
+
+{% if foo %} {% endif %}
+
+<div {% if bar %} class="attribute" {% endif %}></div>
+
+<div {% if bar %} class="attribute" {% endif %}></div>
+
+<div {% if bar %} {% endif %}></div>
+
+<div>
+  {% if foo %}
+    <span>foo</span>
+  {% endif %}
+
+  {% if bar %}
+    <div>bar</div>
+  {% endif %}
+</div>
+
+{% if foo %}
+  {% if bar %} {% endif %}
+{% endif %}
+
+`;

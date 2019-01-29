@@ -61,14 +61,27 @@ function print(path, options, print) {
       : ">\n";
     const tagCloseStartChar = withinTag ? "c-" : `\n</`;
 
-    // TODO Split out elsewhere
+    // TODO split out elsewhere
+    // Handle placeholders
     switch (node.type) {
       case "If":
+      case "For":
         openTag = `${tagOpenStartChar}${placeholder}${tagOpenEndChar}`;
         acc += openTag;
         closingTag = `${tagCloseStartChar}${placeholder}${tagOpenEndChar}`;
+    }
+
+    // TODO Split out elsewhere
+    // Handle Printing
+    switch (node.type) {
+      case "If":
         printOpen = `{% if ${node.cond.value} %}`;
         printClose = "{% endif %}";
+        break;
+      case "For":
+        printOpen = `{% for ${node.name.value} in ${node.arr.value} %}`;
+        printClose = "{% endfor %}";
+        break;
     }
 
     placeholderMap.set(openTag.trim(), printOpen);
