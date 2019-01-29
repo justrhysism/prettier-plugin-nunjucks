@@ -6,6 +6,9 @@ exports[`for.njk - nunjucks-verify: for.njk 1`] = `
 {% for item in items %}
 <div></div> {% endfor %}
 
+{% for key, value in items %}
+  <div></div> {% endfor %}
+
 {% for item in items %} <div><span>Foo</span></div> {% endfor %}
 
 {% for item in items %}{% set bar = 'true' %}{% endfor %}
@@ -30,6 +33,10 @@ class="attribute"
 <div>Foo</div>
 
 {% for item in items %}
+  <div></div>
+{% endfor %}
+
+{% for key, value in items %}
   <div></div>
 {% endfor %}
 

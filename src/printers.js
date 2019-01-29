@@ -79,7 +79,13 @@ function print(path, options, print) {
         printClose = "{% endif %}";
         break;
       case "For":
-        printOpen = `{% for ${node.name.value} in ${node.arr.value} %}`;
+        let keys = node.name.value;
+
+        if (node.name.children) {
+          keys = node.name.children.map(item => item.value).join(", ");
+        }
+
+        printOpen = `{% for ${keys} in ${node.arr.value} %}`;
         printClose = "{% endfor %}";
         break;
     }
