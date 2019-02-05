@@ -30,10 +30,13 @@
 {% else %}
 {% endif %}
 
+{% if bar %}{% else %}{% endif %}
+
 {% if foo %}
 {% if bar %}
 <div>foo-bar</div>
 {% else %}
+<div>bar-foo</div>
 {% endif %}
 {% else %}
 {% if bar %}
