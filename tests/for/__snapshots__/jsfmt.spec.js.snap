@@ -54,7 +54,6 @@ class="attribute"
 <div>
   {% for item in items %}
     <div>bar</div>
-
   {% else %}
     <div>foo</div>
   {% endfor %}
@@ -66,10 +65,7 @@ class="attribute"
   <div>
 
   </div>
-
-
 {% else %}
-
   {% for item2 in items2 %} {% endfor %}
 {% endfor %}
 

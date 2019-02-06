@@ -127,11 +127,6 @@ function print(path, options, print) {
         print: "{% else %}",
         withinTag
       });
-      // if (closingTag.trim()) {
-      //   // const originalClosing = placeholderMap.get(closingTag.trim());
-      //   placeholderMap.set(elseClosingTag.trim(), originalClosing);
-      //   placeholderMap.set(closingTag.trim(), "{% else %}");
-      // }
 
       acc += `${elseOpenTag}${node.else_.children.reduce(
         tempExtractTemplateData,
@@ -162,10 +157,7 @@ function print(path, options, print) {
       currentDoc.parts.forEach((part, index, arr) => {
         const partIsString = typeof part === "string";
         const partIsPlaceholder = partIsString && PLACEHOLDER_REGEX.test(part);
-        // const prevIndex = index - 1;
         const nextIndex = index + 1;
-        // const prev = prevIndex >= 0 ? arr[prevIndex] : undefined;
-        const next = arr[nextIndex];
 
         if (partIsPlaceholder) {
           const original =
@@ -174,15 +166,6 @@ function print(path, options, print) {
 
           if (original) {
             parts.push(original.print);
-
-            // // TODO: Find a better way - or at least refactor...
-            // // If this is an else tag or empty, we need to clear up the newline which come after it
-            // if (original === "{% else %}" || original === "1") {
-            //   if (next && next.type === "line") {
-            //     arr[nextIndex] = "";
-            //   }
-            // }
-
             return;
           }
 
@@ -235,7 +218,7 @@ function print(path, options, print) {
                   if (childParts) {
                     // Will be the last item of the group
                     if (childParts[childParts.length - 1] === "/>") {
-                      childParts.find(childPart => {
+                      return childParts.find(childPart => {
                         if (
                           PLACEHOLDER_REGEX.test(childPart.contents.contents)
                         ) {
@@ -246,16 +229,66 @@ function print(path, options, print) {
 
                           if (elseReplacementModel) {
                             part.contents = dedent(
-                              concat([hardline, elseReplacementModel.print])
+                              concat([
+                                hardline,
+                                elseReplacementModel.print
+                                // hardline
+                              ])
                             );
+
+                            return true;
                           }
 
-                          return true;
+                          return false;
                         }
                       });
                     }
 
-                    return childParts.find(elsePlaceholderReplacer);
+                    const elseIndex = childParts.findIndex(
+                      elsePlaceholderReplacer
+                    );
+                    if (elseIndex === -1) return false;
+
+                    // If we've found else, we'll need to clean out the extra lines
+                    // TODO: Split out function to helper
+                    function isLine(part) {
+                      if (typeof part !== "object") return false;
+
+                      switch (part.type) {
+                        case "line":
+                        case "break-parent":
+                          return true;
+                        default:
+                          return false;
+                      }
+                    }
+
+                    if (elseIndex === -1) return true;
+
+                    // Clear backwards
+                    for (let i = elseIndex - 1; i > -1; i--) {
+                      const childPart = childParts[i];
+                      if (isLine(childPart)) {
+                        childParts[i] = "";
+                      } else {
+                        break;
+                      }
+                    }
+
+                    // Clear Forwards
+                    for (let i = elseIndex + 1; i < childParts.length; i++) {
+                      const childPart = childParts[i];
+                      if (isLine(childPart)) {
+                        childParts[i] = "";
+                      } else {
+                        if (childParts[i] && childParts[i].type === "group") {
+                          childParts[i] = concat([hardline, childParts[i]]);
+                        }
+                        break;
+                      }
+                    }
+
+                    return true;
                   }
 
                   // Case contents.contents.parts

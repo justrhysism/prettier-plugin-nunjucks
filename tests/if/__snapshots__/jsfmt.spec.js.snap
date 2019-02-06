@@ -3,102 +3,94 @@
 exports[`if.njk - nunjucks-verify: if.njk 1`] = `
 <div>Foo</div>
 
-{% if foo %}<span></span>{% endif %}
+{% if foo3 %}<span></span>{% endif %}
 
-{% if foo %}<div><span>Foo</span></div>{% endif %}
+{% if foo5 %}<div><span>Foo</span></div>{% endif %}
 
-{% if foo %}{% set bar = 'true' %}{% endif %}
+{% if foo7 %}{% set bar = 'true' %}{% endif %}
 
-<div {% if bar %}class="attribute"{% endif %}></div>
-<div {% if bar %}class="attribute"{%  else %}class="attribute"{% endif %}></div>
+<div {% if bar9 %}class="attribute"{% endif %}></div>
+<div {% if bar10 %}class="attribute"{%  else %}class="attribute"{% endif %}></div>
 
 <div
-  {% if bar %}
+  {% if bar13 %}
   class="attribute"{% endif %}></div>
 
-<div {% if bar %}{{ attribute }}{% endif %}></div>
+<div {% if bar16 %}{{ attribute }}{% endif %}></div>
 
 <div>
-{% if foo %}<span>foo</span>{% endif %}
+{% if foo19 %}<span>foo</span>{% endif %}
 
-{% if bar %}<div>bar</div>{% endif %}
+{% if bar21 %}<div>bar</div>{% endif %}
 </div>
 
-{% if foo %}
-{% if bar %}
+{% if foo24 %}
+{% if bar25 %}
 {% endif %}
 {% endif %}
 
-{% if bar %}
+{% if bar29 %}
 {% else %}
 {% endif %}
 
-{% if bar %}{% else %}{% endif %}
+{% if bar33 %}{% else %}{% endif %}
 
-{% if foo %}
-{% if bar %}
+{% if foo35 %}
+{% if bar36 %}
 <div>foo-bar</div>
 {% else %}
 <div>bar-foo</div>
 {% endif %}
 {% else %}
-{% if bar %}
+{% if bar42 %}
 {% endif %}
 {% endif %}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <div>Foo</div>
 
-{% if foo %} {% endif %}
+{% if foo3 %} {% endif %}
 
-{% if foo %} {% endif %}
+{% if foo5 %} {% endif %}
 
-{% if foo %} {% endif %}
+{% if foo7 %} {% endif %}
 
-<div {% if bar %} {% endif %}></div>
+<div {% if bar9 %} {% endif %}></div>
 <div
-  {% if bar %}
+  {% if bar10 %}
   class="attribute"
   {% else %}
   class="attribute"
   {% endif %}
 ></div>
 
-<div {% if bar %} {% endif %}></div>
+<div {% if bar13 %} {% endif %}></div>
 
-<div {% if bar %} {% endif %}></div>
+<div {% if bar16 %} {% endif %}></div>
 
 <div>
-  {% if foo %} {% endif %}
+  {% if foo19 %} {% endif %}
 
-  {% if bar %} {% endif %}
+  {% if bar21 %} {% endif %}
 </div>
 
-{% if foo %} {% endif %}
+{% if foo24 %} {% endif %}
 
-{% if bar %}
-
+{% if bar29 %}
 {% else %}
 {% endif %}
 
-{% if bar %}
-
+{% if bar33 %}
 {% else %}
 {% endif %}
 
-{% if foo %}
-  {% if bar %}
+{% if foo35 %}
+  {% if bar36 %}
     <div>foo-bar</div>
-
-
   {% else %}
-
     <div>bar-foo</div>
   {% endif %}
-
-
 {% else %}
-
-  {% if bar %} {% endif %}
+  {% if bar42 %} {% endif %}
 {% endif %}
 
 `;
