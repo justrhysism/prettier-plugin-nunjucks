@@ -7,9 +7,9 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 
 ### Tags
 
-- [ ] if
+- [x] if
   - [ ] [logic](https://mozilla.github.io/nunjucks/templating.html#logic)
-- [ ] for
+- [x] for
 - [ ] asyncEach
 - [ ] asyncAll
 - [ ] macro
