@@ -13,7 +13,7 @@
   {% if bar13 %}
   class="attribute"{% endif %}></div>
 
-<div {% if bar16 %}{{ attribute }}{% endif %}></div>
+<div {% if bar16 %}{% endif %}></div>
 
 <div>
 {% if foo19 %}<span>foo</span>{% endif %}
@@ -23,6 +23,8 @@
 
 {% if foo24 %}
 {% if bar25 %}
+{% if baz26 %}
+{% endif %}
 {% endif %}
 {% endif %}
 

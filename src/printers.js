@@ -111,7 +111,7 @@ function print(path, options, print) {
       });
     }
 
-    if (hasElse) {
+    if (node.body && node.body.children) {
       // TODO: This reducer doesn't work inside a tag - renders tags within
       acc = node.body.children.reduce(tempExtractTemplateData, acc);
     }
