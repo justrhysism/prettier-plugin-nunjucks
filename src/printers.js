@@ -176,11 +176,28 @@ function print(path, options, print) {
             placeholderMap.get(part.replace(">", ""));
 
           if (original) {
+            placeholderMap.delete(part);
+            placeholderMap.delete(part.replace(">", ""));
             parts.push(original.print);
             return;
+          } else {
+            let found = false;
+
+            // Potentially the placeholder is buried within a string
+            for (let [key, value] of placeholderMap) {
+              if (part.includes(key)) {
+                const replaced = part.replace(key, value.print);
+                parts.push(replaced);
+                found = true;
+                break;
+              }
+            }
+
+            if (found) return;
           }
 
           console.warn("Unable to find original for placeholder:", part);
+          return;
         }
 
         const partIsObject = typeof part === "object";
@@ -195,6 +212,8 @@ function print(path, options, print) {
             placeholderMap.get(part.contents.replace(">", ""));
 
           if (original) {
+            placeholderMap.delete(part.contents);
+            placeholderMap.delete(part.contents.replace(">", ""));
             parts.push(Object.assign({}, part, { contents: original.print }));
 
             if (original.hasElse) {
@@ -333,7 +352,11 @@ function print(path, options, print) {
 
         if (selfClosingPlaceholder && selfClosingPlaceholder.type !== "else") {
           parts.push(selfClosingPlaceholder.print);
-          arr.pop(); // Ignore the "/>" -- TODO: this whole thing needs to be better
+
+          if (arr[nextIndex] === "/>") {
+            arr[nextIndex] = "";
+          }
+
           return;
         }
 
@@ -356,8 +379,9 @@ function embed(path, print, textToDoc, options) {
 function isSelfClosingPlaceholder(arr) {
   if (!Array.isArray(arr) || !arr.length) return false;
 
-  const isSelfClosing = arr[arr.length - 1] === "/>";
-  if (!isSelfClosing) return;
+  const isOpeningGroup = arr[0].type === "group";
+  const isSelfClosing = arr[1] === "/>";
+  if (!isOpeningGroup || !isSelfClosing) return;
 
   return PLACEHOLDER_REGEX.test(arr[0].contents.contents);
 }
