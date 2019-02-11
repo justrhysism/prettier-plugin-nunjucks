@@ -16,7 +16,7 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
   {% if bar13 %}
   class="attribute"{% endif %}></div>
 
-<div {% if bar16 %}{% endif %}></div>
+<div {% if bar16 %}{{ attribute16 }}{% endif %}></div>
 
 <div>
 {% if foo19 %}<span>foo</span>{% endif %}
@@ -31,21 +31,36 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
 {% endif %}
 {% endif %}
 
-{% if bar29 %}
+{% if bar31 %}
 {% else %}
 {% endif %}
 
-{% if bar33 %}{% else %}{% endif %}
+{% if bar35 %}
+{{ value36 }}
+{% else %}
+{{ value38 }}
+{% endif %}
 
-{% if foo35 %}
-{% if bar36 %}
+{% if bar41 %}{% else %}{% endif %}
+
+{% if foo43 %}
+{% if bar44 %}
 <div>foo-bar</div>
 {% else %}
 <div>bar-foo</div>
 {% endif %}
 {% else %}
-{% if bar42 %}
+{% if bar58 %}
 {% endif %}
+{% endif %}
+
+<div {% if bar54 %}
+  {{ value55 }}
+{% endif %}></div>
+<div {% if bar57 %}{% else %}   {{  value57  }}    {% endif %}></div>
+
+{% if foo61 %}
+{{ value62 }}
 {% endif %}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <div>Foo</div>
@@ -58,9 +73,7 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
   <div><span>Foo</span></div>
 {% endif %}
 
-{% if foo7 %}
-
-{% endif %}
+{% if foo7 %} {% endif %}
 
 <div {% if bar9 %} class="attribute" {% endif %}></div>
 <div
@@ -73,7 +86,7 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
 
 <div {% if bar13 %} class="attribute" {% endif %}></div>
 
-<div {% if bar16 %} {% endif %}></div>
+<div {% if bar16 %} {{ attribute16 }} {% endif %}></div>
 
 <div>
   {% if foo19 %}
@@ -91,22 +104,35 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
   {% endif %}
 {% endif %}
 
-{% if bar29 %}
+{% if bar31 %}
 {% else %}
 {% endif %}
 
-{% if bar33 %}
+{% if bar35 %}
+  {{ value36 }}
+{% else %}
+  {{ value38 }}
+{% endif %}
+
+{% if bar41 %}
 {% else %}
 {% endif %}
 
-{% if foo35 %}
-  {% if bar36 %}
+{% if foo43 %}
+  {% if bar44 %}
     <div>foo-bar</div>
   {% else %}
     <div>bar-foo</div>
   {% endif %}
 {% else %}
-  {% if bar42 %} {% endif %}
+  {% if bar58 %} {% endif %}
+{% endif %}
+
+<div {% if bar54 %} {{ value55 }} {% endif %}></div>
+<div {% if bar57 %} {% else %} {{ value57 }} {% endif %}></div>
+
+{% if foo61 %}
+  {{ value62 }}
 {% endif %}
 
 `;

@@ -21,20 +21,21 @@ const {
 } = require("prettier").doc.builders;
 const { mapDoc } = require("prettier").doc.utils;
 
+const PLACEHOLDER_REGEX = /Placeholder-\d+/;
 let hoistedTextToDoc;
 
 let placeholderIncrement = 0;
 
 function getPlaceholderTags(acc, selfClosing) {
-  const placeholder = `Placeholder-${placeholderIncrement}`;
   placeholderIncrement++;
+  const placeholder = `Placeholder-${placeholderIncrement}`;
 
   const lastTagStartChar = acc.lastIndexOf("<");
   const lastTagEndChar = acc.lastIndexOf(">");
   const withinTag = lastTagStartChar > lastTagEndChar;
 
-  const tagOpenStartChar = withinTag ? "o-" : "\n<";
-  const tagOpenEndChar = withinTag ? " " : selfClosing ? "/>\n" : ">\n";
+  const tagOpenStartChar = withinTag ? "o-" : selfClosing ? "<" : "\n<";
+  const tagOpenEndChar = withinTag ? " " : selfClosing ? "/> " : ">\n";
   const tagCloseStartChar = withinTag ? "c-" : `\n</`;
 
   return {
@@ -66,14 +67,14 @@ function print(path, options, print) {
       return node.children.reduce(tempExtractTemplateData, acc);
     }
 
+    const selfClosing = node.type === "Symbol"; // TODO: This probably needs to be smarter
     const { openTag, openTagKey, closingTag, withinTag } = getPlaceholderTags(
-      acc
+      acc,
+      selfClosing
     );
     let printOpen = "";
     let printClose = "";
     let hasElse = !!(node.else_ && node.else_.children);
-
-    acc += openTag;
 
     // TODO Split out elsewhere
     // Handle Printing
@@ -92,6 +93,13 @@ function print(path, options, print) {
         printOpen = `{% for ${keys} in ${node.arr.value} %}`;
         printClose = "{% endfor %}";
         break;
+      case "Symbol":
+        printOpen = `{{ ${node.value} }}`;
+        break;
+    }
+
+    if (printOpen) {
+      acc += openTag;
     }
 
     placeholderMap.set(openTagKey, {
@@ -128,19 +136,22 @@ function print(path, options, print) {
         withinTag
       });
 
-      acc += `${elseOpenTag}${node.else_.children.reduce(
-        tempExtractTemplateData,
-        ""
-      )}`;
+      acc += elseOpenTag;
+      acc = node.else_.children.reduce(tempExtractTemplateData, acc);
     }
 
-    acc += closingTag;
+    if (printClose) {
+      acc += closingTag;
+    }
 
     return acc;
   }
 
   // 1. Install placeholders
   const placeheldString = node.children.reduce(tempExtractTemplateData, "");
+  console.log("###");
+  console.log(placeheldString);
+  console.log("###");
 
   // 2. Run through HTML formatter
   const htmlDoc = hoistedTextToDoc(placeheldString, { parser: "html" });
@@ -217,6 +228,7 @@ function print(path, options, print) {
 
                   if (childParts) {
                     // Will be the last item of the group
+                    // TODO: Use function getSelfClosingPlaceholder()
                     if (childParts[childParts.length - 1] === "/>") {
                       return childParts.find(childPart => {
                         if (
@@ -311,6 +323,20 @@ function print(path, options, print) {
           );
         }
 
+        // The whole array could be self-closing part
+        const selfClosingPlaceholder = getSelfClosingPlaceholder(
+          {
+            parts: arr
+          },
+          placeholderMap
+        );
+
+        if (selfClosingPlaceholder && selfClosingPlaceholder.type !== "else") {
+          parts.push(selfClosingPlaceholder.print);
+          arr.pop(); // Ignore the "/>" -- TODO: this whole thing needs to be better
+          return;
+        }
+
         parts.push(part);
       });
 
@@ -325,6 +351,29 @@ function print(path, options, print) {
 function embed(path, print, textToDoc, options) {
   hoistedTextToDoc = textToDoc;
   return null;
+}
+
+function isSelfClosingPlaceholder(arr) {
+  if (!Array.isArray(arr) || !arr.length) return false;
+
+  const isSelfClosing = arr[arr.length - 1] === "/>";
+  if (!isSelfClosing) return;
+
+  return PLACEHOLDER_REGEX.test(arr[0].contents.contents);
+}
+
+function getSelfClosingPlaceholder(doc, placeholderMap) {
+  if (typeof doc !== "object") return;
+
+  const parts = doc.parts;
+
+  if (!parts) return;
+
+  const isPlaceholder = isSelfClosingPlaceholder(parts);
+  if (!isPlaceholder) return;
+
+  const placeholder = parts[0].contents.contents.trim();
+  return placeholderMap.get(placeholder);
 }
 
 module.exports = {

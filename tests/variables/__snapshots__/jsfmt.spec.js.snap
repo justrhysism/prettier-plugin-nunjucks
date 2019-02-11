@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`variables.njk - nunjucks-verify: variables.njk 1`] = `
+{{ variable1 }}
+
+{{variable2}}
+
+{{
+  variable3
+}}
+
+{{ variable4
+}}
+
+{{
+variable5 }}
+
+<div>{{ variable7 }}</div>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{{ variable1 }}
+
+{{ variable2 }}
+
+{{ variable3 }}
+
+{{ variable4 }}
+
+{{ variable5 }}
+
+<div>{{ variable7 }}</div>
+
+`;
