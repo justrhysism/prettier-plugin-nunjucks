@@ -15,7 +15,9 @@ function parse(text, parsers, options) {
   // } else if (opts && opts.clean === true) {
   // 	node = ast.clean(node);
   // }
-  const parsed = ast.normalize(nunjucks.parse(text));
+  const nunjParsed = nunjucks.parse(text);
+
+  const parsed = ast.normalize(nunjParsed);
   return parsed;
 }
 

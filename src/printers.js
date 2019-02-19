@@ -2,6 +2,7 @@
  * Nunjucks Prettier Printers
  */
 
+const { printVariable } = require("./printer/variables");
 const {
   breakParent,
   concat,
@@ -67,7 +68,7 @@ function print(path, options, print) {
       return node.children.reduce(tempExtractTemplateData, acc);
     }
 
-    const selfClosing = node.type === "Symbol"; // TODO: This probably needs to be smarter
+    let selfClosing = node.type === "Symbol" || node.type === "LookupVal"; // TODO: This probably needs to be smarter
     const { openTag, openTagKey, closingTag, withinTag } = getPlaceholderTags(
       acc,
       selfClosing
@@ -94,7 +95,8 @@ function print(path, options, print) {
         printClose = "{% endfor %}";
         break;
       case "Symbol":
-        printOpen = `{{ ${node.value} }}`;
+      case "LookupVal":
+        printOpen = printVariable(node);
         break;
     }
 
@@ -149,9 +151,9 @@ function print(path, options, print) {
 
   // 1. Install placeholders
   const placeheldString = node.children.reduce(tempExtractTemplateData, "");
-  console.log("###");
-  console.log(placeheldString);
-  console.log("###");
+  // console.log("###");
+  // console.log(placeheldString);
+  // console.log("###");
 
   // 2. Run through HTML formatter
   const htmlDoc = hoistedTextToDoc(placeheldString, { parser: "html" });
