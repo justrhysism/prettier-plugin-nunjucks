@@ -15,7 +15,7 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 - [ ] macro
 - [ ] set
 - [ ] extends
-- [ ] block
+- [x] block
 - [ ] include
 - [ ] import
 - [ ] raw

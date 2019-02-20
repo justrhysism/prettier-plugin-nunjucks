@@ -22,6 +22,7 @@ const {
 } = require("prettier").doc.builders;
 const { mapDoc } = require("prettier").doc.utils;
 
+const SELF_CLOSING_TYPES = ["FunCall", "LookupVal", "Set", "Symbol"];
 const PLACEHOLDER_REGEX = /Placeholder-\d+/;
 let hoistedTextToDoc;
 
@@ -56,7 +57,6 @@ function print(path, options, print) {
   // 2. Run the place-held doc through the HTML formatter
   // 3. Upon return, re-instate the Nunjucks template tags with formatting
 
-  const PLACEHOLDER_REGEX = /Placeholder-\d+/;
   const placeholderMap = new Map();
 
   function tempExtractTemplateData(acc, node) {
@@ -68,7 +68,7 @@ function print(path, options, print) {
       return node.children.reduce(tempExtractTemplateData, acc);
     }
 
-    let selfClosing = node.type === "Symbol" || node.type === "LookupVal"; // TODO: This probably needs to be smarter
+    let selfClosing = SELF_CLOSING_TYPES.some(type => type === node.type);
     const { openTag, openTagKey, closingTag, withinTag } = getPlaceholderTags(
       acc,
       selfClosing
@@ -80,6 +80,10 @@ function print(path, options, print) {
     // TODO Split out elsewhere
     // Handle Printing
     switch (node.type) {
+      case "Block":
+        printOpen = `{% block ${node.name.value} %}`;
+        printClose = "{% endblock %}";
+        break;
       case "If":
         printOpen = `{% if ${node.cond.value} %}`;
         printClose = "{% endif %}";
@@ -87,17 +91,17 @@ function print(path, options, print) {
       case "For":
       case "AsyncAll":
       case "AsyncEach":
-        let open = "for";
-        let close = "endfor";
+        let forOpen = "for";
+        let forClose = "endfor";
 
         switch (node.type) {
           case "AsyncAll":
-            open = "asyncAll";
-            close = "endall";
+            forOpen = "asyncAll";
+            forClose = "endall";
             break;
           case "AsyncEach":
-            open = "asyncEach";
-            close = "endeach";
+            forOpen = "asyncEach";
+            forClose = "endeach";
             break;
         }
 
@@ -107,12 +111,15 @@ function print(path, options, print) {
           keys = node.name.children.map(item => item.value).join(", ");
         }
 
-        printOpen = `{% ${open} ${keys} in ${node.arr.value} %}`;
-        printClose = `{% ${close} %}`;
+        printOpen = `{% ${forOpen} ${keys} in ${node.arr.value} %}`;
+        printClose = `{% ${forClose} %}`;
         break;
       case "Symbol":
       case "LookupVal":
         printOpen = printVariable(node);
+        break;
+      case "FunCall":
+        printOpen = `{{ ${node.name.value}() }}`;
         break;
     }
 
