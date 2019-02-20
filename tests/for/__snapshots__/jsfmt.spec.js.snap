@@ -1,5 +1,159 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`asyncAll.njk - nunjucks-verify: asyncAll.njk 1`] = `
+<div>Foo</div>
+
+{% asyncAll item in items %}
+<div></div> {% endall %}
+
+{% asyncAll key, value in items %}
+  <div></div> {% endall %}
+
+{% asyncAll item in items %} <div><span>Foo</span></div> {% endall %}
+
+{% asyncAll item in items %}{% set bar = 'true' %}{% endall %}
+
+<div {% asyncAll item in items %}class="attribute"{% endall %}></div>
+
+<div
+{% asyncAll item in items %}
+class="attribute"
+{% endall %}></div>
+
+<div>
+
+{% asyncAll item in items %}<div>bar</div>{% else %}<div>foo</div>{% endall %}
+</div>
+
+{% asyncAll item in items %}
+{% asyncAll item2 in items2 %}
+{% endall %}
+{% endall %}
+
+{% asyncAll item in items %}
+<div>{{ item }}</div>
+{% else %}
+{% asyncAll item2 in items2 %}
+{% endall %}
+{% endall %}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<div>Foo</div>
+
+{% asyncAll item in items %}
+  <div></div>
+{% endall %}
+
+{% asyncAll key, value in items %}
+  <div></div>
+{% endall %}
+
+{% asyncAll item in items %}
+  <div><span>Foo</span></div>
+{% endall %}
+
+{% asyncAll item in items %} {% endall %}
+
+<div {% asyncAll item in items %} class="attribute" {% endall %}></div>
+
+<div {% asyncAll item in items %} class="attribute" {% endall %}></div>
+
+<div>
+  {% asyncAll item in items %}
+    <div>bar</div>
+  {% else %}
+    <div>foo</div>
+  {% endall %}
+</div>
+
+{% asyncAll item in items %}
+  {% asyncAll item2 in items2 %} {% endall %}
+{% endall %}
+
+{% asyncAll item in items %}
+  <div>{{ item }}</div>
+{% else %}
+  {% asyncAll item2 in items2 %} {% endall %}
+{% endall %}
+
+`;
+
+exports[`asyncEach.njk - nunjucks-verify: asyncEach.njk 1`] = `
+<div>Foo</div>
+
+{% asyncEach item in items %}
+<div></div> {% endeach %}
+
+{% asyncEach key, value in items %}
+  <div></div> {% endeach %}
+
+{% asyncEach item in items %} <div><span>Foo</span></div> {% endeach %}
+
+{% asyncEach item in items %}{% set bar = 'true' %}{% endeach %}
+
+<div {% asyncEach item in items %}class="attribute"{% endeach %}></div>
+
+<div
+{% asyncEach item in items %}
+class="attribute"
+{% endeach %}></div>
+
+<div>
+
+{% asyncEach item in items %}<div>bar</div>{% else %}<div>foo</div>{% endeach %}
+</div>
+
+{% asyncEach item in items %}
+{% asyncEach item2 in items2 %}
+{% endeach %}
+{% endeach %}
+
+{% asyncEach item in items %}
+<div>{{ item }}</div>
+{% else %}
+{% asyncEach item2 in items2 %}
+{% endeach %}
+{% endeach %}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<div>Foo</div>
+
+{% asyncEach item in items %}
+  <div></div>
+{% endeach %}
+
+{% asyncEach key, value in items %}
+  <div></div>
+{% endeach %}
+
+{% asyncEach item in items %}
+  <div><span>Foo</span></div>
+{% endeach %}
+
+{% asyncEach item in items %} {% endeach %}
+
+<div {% asyncEach item in items %} class="attribute" {% endeach %}></div>
+
+<div {% asyncEach item in items %} class="attribute" {% endeach %}></div>
+
+<div>
+  {% asyncEach item in items %}
+    <div>bar</div>
+  {% else %}
+    <div>foo</div>
+  {% endeach %}
+</div>
+
+{% asyncEach item in items %}
+  {% asyncEach item2 in items2 %} {% endeach %}
+{% endeach %}
+
+{% asyncEach item in items %}
+  <div>{{ item }}</div>
+{% else %}
+  {% asyncEach item2 in items2 %} {% endeach %}
+{% endeach %}
+
+`;
+
 exports[`for.njk - nunjucks-verify: for.njk 1`] = `
 <div>Foo</div>
 
@@ -36,14 +190,6 @@ class="attribute"
 {% for item2 in items2 %}
 {% endfor %}
 {% endfor %}
-
-
-{% asyncAll item in items %}
-<div>{{ item }}</div>
-{% else %}
-{% asyncEach item2 in items2 %}
-{% endeach %}
-{% endall %}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <div>Foo</div>
 
@@ -82,11 +228,5 @@ class="attribute"
 {% else %}
   {% for item2 in items2 %} {% endfor %}
 {% endfor %}
-
-{% asyncAll item in items %}
-  <div>{{ item }}</div>
-{% else %}
-  {% asyncEach item2 in items2 %} {% endeach %}
-{% endall %}
 
 `;
