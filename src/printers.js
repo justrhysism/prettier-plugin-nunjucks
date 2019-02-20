@@ -149,6 +149,22 @@ function print(path, options, print) {
       case "FunCall":
         printOpen = `{{ ${node.name.value}() }}`;
         break;
+      case "Set":
+        function setValueFormatter(node) {
+          let value = node.value.value;
+
+          if (node.value.type === "Literal" && !Number.isFinite(value)) {
+            value = `"${value}"`;
+          }
+
+          return value;
+        }
+
+        let setValue = setValueFormatter(node);
+        printOpen = `${TAG_OPEN} set ${node.targets
+          .map(t => t.value)
+          .join(", ")} = ${setValue} ${TAG_CLOSE}`;
+        break;
     }
 
     if (printOpen) {

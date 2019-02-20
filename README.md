@@ -13,9 +13,10 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 - [x] asyncEach
 - [x] asyncAll
 - [ ] macro
-- [ ] set
-  - [ ] basic
-  - [ ] multiple assignment
+- [x] set
+  - [x] basic
+  - [x] multiple assignment
+  - [ ] object assignment
   - [ ] endset
 - [x] extends
 - [x] block
