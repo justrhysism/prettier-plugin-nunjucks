@@ -22,7 +22,9 @@ const {
 } = require("prettier").doc.builders;
 const { mapDoc } = require("prettier").doc.utils;
 
-const SELF_CLOSING_TYPES = ["FunCall", "LookupVal", "Set", "Symbol"];
+const TAG_OPEN = "{%";
+const TAG_CLOSE = "%}";
+const SELF_CLOSING_TYPES = ["Extends", "FunCall", "LookupVal", "Set", "Symbol"];
 const PLACEHOLDER_REGEX = /Placeholder-\d+/;
 let hoistedTextToDoc;
 
@@ -81,12 +83,36 @@ function print(path, options, print) {
     // Handle Printing
     switch (node.type) {
       case "Block":
-        printOpen = `{% block ${node.name.value} %}`;
-        printClose = "{% endblock %}";
+        printOpen = `${TAG_OPEN} block ${node.name.value} ${TAG_CLOSE}`;
+        printClose = `${TAG_OPEN} endblock ${TAG_CLOSE}`;
+        break;
+      case "Extends":
+        let extendsValue = "";
+
+        function extendsValueFormatter(context) {
+          switch (context.type) {
+            case "Literal":
+              return `"${context.value}"`;
+            default:
+              return context.value;
+          }
+        }
+
+        switch (node.template.type) {
+          case "Add":
+            extendsValue = `${extendsValueFormatter(
+              node.template.left
+            )} + ${extendsValueFormatter(node.template.right)}`;
+            break;
+          default:
+            extendsValue = extendsValueFormatter(node.template);
+        }
+
+        printOpen = `${TAG_OPEN} extends ${extendsValue} ${TAG_CLOSE}\n`;
         break;
       case "If":
-        printOpen = `{% if ${node.cond.value} %}`;
-        printClose = "{% endif %}";
+        printOpen = `${TAG_OPEN} if ${node.cond.value} ${TAG_CLOSE}`;
+        printClose = `${TAG_OPEN} endif ${TAG_CLOSE}`;
         break;
       case "For":
       case "AsyncAll":
@@ -111,8 +137,10 @@ function print(path, options, print) {
           keys = node.name.children.map(item => item.value).join(", ");
         }
 
-        printOpen = `{% ${forOpen} ${keys} in ${node.arr.value} %}`;
-        printClose = `{% ${forClose} %}`;
+        printOpen = `${TAG_OPEN} ${forOpen} ${keys} in ${
+          node.arr.value
+        } ${TAG_CLOSE}`;
+        printClose = `${TAG_OPEN} ${forClose} ${TAG_CLOSE}`;
         break;
       case "Symbol":
       case "LookupVal":

@@ -14,7 +14,7 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 - [x] asyncAll
 - [ ] macro
 - [ ] set
-- [ ] extends
+- [x] extends
 - [x] block
 - [ ] include
 - [ ] import

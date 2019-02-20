@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`extends.njk - nunjucks-verify: extends.njk 1`] = `
+{% extends "base.html" %}
+{% extends parentTemplate %}
+{% extends name + ".html" %}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{% extends "base.html" %}
+
+{% extends parentTemplate %}
+
+{% extends name + ".html" %}
+
+
+`;
