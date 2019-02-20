@@ -85,14 +85,30 @@ function print(path, options, print) {
         printClose = "{% endif %}";
         break;
       case "For":
+      case "AsyncAll":
+      case "AsyncEach":
+        let open = "for";
+        let close = "endfor";
+
+        switch (node.type) {
+          case "AsyncAll":
+            open = "asyncAll";
+            close = "endall";
+            break;
+          case "AsyncEach":
+            open = "asyncEach";
+            close = "endeach";
+            break;
+        }
+
         let keys = node.name.value;
 
         if (node.name.children) {
           keys = node.name.children.map(item => item.value).join(", ");
         }
 
-        printOpen = `{% for ${keys} in ${node.arr.value} %}`;
-        printClose = "{% endfor %}";
+        printOpen = `{% ${open} ${keys} in ${node.arr.value} %}`;
+        printClose = `{% ${close} %}`;
         break;
       case "Symbol":
       case "LookupVal":

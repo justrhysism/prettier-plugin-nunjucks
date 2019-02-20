@@ -10,8 +10,8 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 - [x] if
   - [ ] [logic](https://mozilla.github.io/nunjucks/templating.html#logic)
 - [x] for
-- [ ] asyncEach
-- [ ] asyncAll
+- [x] asyncEach
+- [x] asyncAll
 - [ ] macro
 - [ ] set
 - [ ] extends

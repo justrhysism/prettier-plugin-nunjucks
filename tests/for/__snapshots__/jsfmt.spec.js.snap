@@ -36,6 +36,14 @@ class="attribute"
 {% for item2 in items2 %}
 {% endfor %}
 {% endfor %}
+
+
+{% asyncAll item in items %}
+<div>{{ item }}</div>
+{% else %}
+{% asyncEach item2 in items2 %}
+{% endeach %}
+{% endall %}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <div>Foo</div>
 
@@ -74,5 +82,11 @@ class="attribute"
 {% else %}
   {% for item2 in items2 %} {% endfor %}
 {% endfor %}
+
+{% asyncAll item in items %}
+  <div>{{ item }}</div>
+{% else %}
+  {% asyncEach item2 in items2 %} {% endeach %}
+{% endall %}
 
 `;
