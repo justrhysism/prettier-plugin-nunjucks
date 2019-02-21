@@ -4,6 +4,14 @@
 
 const { printVariable } = require("./printer/variables");
 const {
+  isBlockTag,
+  hasElse,
+  getOpenTagName,
+  getCloseTagName,
+  getValue
+} = require("./printer/helpers");
+
+const {
   breakParent,
   concat,
   join,
@@ -24,8 +32,8 @@ const { mapDoc } = require("prettier").doc.utils;
 
 const TAG_OPEN = "{%";
 const TAG_CLOSE = "%}";
-const SELF_CLOSING_TYPES = ["Extends", "FunCall", "LookupVal", "Set", "Symbol"];
 const PLACEHOLDER_REGEX = /Placeholder-\d+/;
+
 let hoistedTextToDoc;
 
 let placeholderIncrement = 0;
@@ -70,100 +78,37 @@ function print(path, options, print) {
       return node.children.reduce(tempExtractTemplateData, acc);
     }
 
-    let selfClosing = SELF_CLOSING_TYPES.some(type => type === node.type);
+    let selfClosing = !isBlockTag(node); //SELF_CLOSING_TYPES.some(type => type === node.type);
     const { openTag, openTagKey, closingTag, withinTag } = getPlaceholderTags(
       acc,
       selfClosing
     );
-    let printOpen = "";
-    let printClose = "";
-    let hasElse = !!(node.else_ && node.else_.children);
+    let nodeHasElse = hasElse(node);
+
+    // Temporary
+    const open = getOpenTagName(node);
+    const close = getCloseTagName(node);
+
+    let afterPrintOpen = "";
+
+    if (node.type === "Extends") {
+      afterPrintOpen = "\n";
+    }
+
+    let printOpen = `${TAG_OPEN} ${open} ${getValue(
+      node
+    )} ${TAG_CLOSE}${afterPrintOpen}`;
+    let printClose = selfClosing ? "" : `${TAG_OPEN} ${close} ${TAG_CLOSE}`;
 
     // TODO Split out elsewhere
     // Handle Printing
     switch (node.type) {
-      case "Block":
-        printOpen = `${TAG_OPEN} block ${node.name.value} ${TAG_CLOSE}`;
-        printClose = `${TAG_OPEN} endblock ${TAG_CLOSE}`;
-        break;
-      case "Extends":
-        let extendsValue = "";
-
-        function extendsValueFormatter(context) {
-          switch (context.type) {
-            case "Literal":
-              return `"${context.value}"`;
-            default:
-              return context.value;
-          }
-        }
-
-        switch (node.template.type) {
-          case "Add":
-            extendsValue = `${extendsValueFormatter(
-              node.template.left
-            )} + ${extendsValueFormatter(node.template.right)}`;
-            break;
-          default:
-            extendsValue = extendsValueFormatter(node.template);
-        }
-
-        printOpen = `${TAG_OPEN} extends ${extendsValue} ${TAG_CLOSE}\n`;
-        break;
-      case "If":
-        printOpen = `${TAG_OPEN} if ${node.cond.value} ${TAG_CLOSE}`;
-        printClose = `${TAG_OPEN} endif ${TAG_CLOSE}`;
-        break;
-      case "For":
-      case "AsyncAll":
-      case "AsyncEach":
-        let forOpen = "for";
-        let forClose = "endfor";
-
-        switch (node.type) {
-          case "AsyncAll":
-            forOpen = "asyncAll";
-            forClose = "endall";
-            break;
-          case "AsyncEach":
-            forOpen = "asyncEach";
-            forClose = "endeach";
-            break;
-        }
-
-        let keys = node.name.value;
-
-        if (node.name.children) {
-          keys = node.name.children.map(item => item.value).join(", ");
-        }
-
-        printOpen = `${TAG_OPEN} ${forOpen} ${keys} in ${
-          node.arr.value
-        } ${TAG_CLOSE}`;
-        printClose = `${TAG_OPEN} ${forClose} ${TAG_CLOSE}`;
-        break;
       case "Symbol":
       case "LookupVal":
         printOpen = printVariable(node);
         break;
       case "FunCall":
         printOpen = `{{ ${node.name.value}() }}`;
-        break;
-      case "Set":
-        function setValueFormatter(node) {
-          let value = node.value.value;
-
-          if (node.value.type === "Literal" && !Number.isFinite(value)) {
-            value = `"${value}"`;
-          }
-
-          return value;
-        }
-
-        let setValue = setValueFormatter(node);
-        printOpen = `${TAG_OPEN} set ${node.targets
-          .map(t => t.value)
-          .join(", ")} = ${setValue} ${TAG_CLOSE}`;
         break;
     }
 
@@ -176,7 +121,7 @@ function print(path, options, print) {
       type: node.type,
       print: printOpen,
       withinTag,
-      hasElse
+      hasElse: nodeHasElse
     });
 
     if (closingTag.trim()) {
@@ -188,12 +133,12 @@ function print(path, options, print) {
       });
     }
 
-    if (node.body && node.body.children) {
+    if (isBlockTag(node)) {
       // TODO: This reducer doesn't work inside a tag - renders tags within
       acc = node.body.children.reduce(tempExtractTemplateData, acc);
     }
 
-    if (node.else_ && node.else_.children) {
+    if (nodeHasElse) {
       const elseTags = getPlaceholderTags(acc, true);
       const elseOpenTag = elseTags.openTag;
       const elseOpenTagKey = elseTags.openTagKey;
