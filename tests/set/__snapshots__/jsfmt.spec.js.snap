@@ -5,17 +5,10 @@ exports[`set.njk - nunjucks-verify: set.njk 1`] = `
 {% set foo = bar %}
 {% set foo = 1 %}
 {% set x, y, z = 5 %}
-
-{% set foo = {
-  foo: 'bar',
-bar: 'baz'
-} %}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 {% set foo = "foo" %}
 {% set foo = bar %}
 {% set foo = 1 %}
 {% set x, y, z = 5 %}
-
-{% set foo = undefined %}
 
 `;
