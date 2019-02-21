@@ -73,7 +73,9 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
   <div><span>Foo</span></div>
 {% endif %}
 
-{% if foo7 %} {% endif %}
+{% if foo7 %}
+  {% set bar = "true" %}
+{% endif %}
 
 <div {% if bar9 %} class="attribute" {% endif %}></div>
 <div

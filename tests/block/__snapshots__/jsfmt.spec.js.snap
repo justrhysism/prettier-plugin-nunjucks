@@ -67,7 +67,9 @@ Foobar
   <div><span>Foo</span></div>
 {% endblock %}
 
-{% block foo7 %} {% endblock %}
+{% block foo7 %}
+  {% set bar = "true" %}
+{% endblock %}
 
 <div {% block bar9 %} class="attribute" {% endblock %}></div>
 <div {% block bar10 %} class="attribute" {% endblock %}></div>
