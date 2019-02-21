@@ -8,6 +8,9 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 ### Tags
 
 - [x] if
+  - [x] else
+  - [ ] elif
+  - [ ] expression (e.g. `{% if foo === bar %}`)
   - [ ] [logic](https://mozilla.github.io/nunjucks/templating.html#logic)
 - [x] for
 - [x] asyncEach
