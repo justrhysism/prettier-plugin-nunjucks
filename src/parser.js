@@ -2,10 +2,13 @@
  * Nunjucks Parser
  */
 
+"use strict";
+
 const nunjucks = require("nunjucks/src/parser");
 const ast = require("./ast");
 
-function parse(text, parsers, options) {
+// args: text, parsers, options
+function parse(text) {
   // let node = ast.normalize(parser.parse(str));
 
   // if (opts && opts.verbose) {
@@ -16,29 +19,29 @@ function parse(text, parsers, options) {
   // 	node = ast.clean(node);
   // }
   const nunjParsed = nunjucks.parse(text);
-
-  const parsed = ast.normalize(nunjParsed);
-  return parsed;
+  return ast.normalize(nunjParsed);
 }
 
 function locStart(node) {
+  // eslint-disable-next-line no-console
   console.log("locStart", node);
 }
 
 function locEnd(node) {
+  // eslint-disable-next-line no-console
   console.log("locEnd", node);
 }
 
-function hasPragma(text) {}
+// function hasPragma(text) {}
 
-function preprocess(text, options) {}
+// function preprocess(text, options) {}
 
 module.exports = {
-  parse: parse,
+  parse,
   // The name of the AST that
   astFormat: "nunjucks-ast",
-  hasPragma: hasPragma,
-  locStart: locStart,
-  locEnd: locEnd
+  // hasPragma,
+  locStart,
+  locEnd
   //preprocess: preprocess
 };

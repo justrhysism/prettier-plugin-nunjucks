@@ -2,6 +2,8 @@
  * Prettier Plugin Nunjucks
  */
 
+"use strict";
+
 const parser = require("./parser");
 const printers = require("./printers");
 

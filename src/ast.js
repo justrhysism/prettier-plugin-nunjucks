@@ -24,7 +24,7 @@ const CHILD_KEYS = ["children", "ops", "targets"];
 const NODE_NAMES = Object.keys(nodes);
 
 const getNodeType = node => {
-  var type;
+  let type;
   return (
     node.type ||
     (NODE_NAMES.some(name => {
@@ -64,8 +64,8 @@ const walk = (node, func) => {
 };
 
 module.exports = {
-  clean: clean,
-  normalize: normalize,
-  getNodeType: getNodeType,
-  walk: walk
+  clean,
+  normalize,
+  getNodeType,
+  walk
 };

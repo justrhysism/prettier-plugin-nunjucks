@@ -2,6 +2,8 @@
  * Nunjucks Prettier Printers
  */
 
+"use strict";
+
 const { printVariable } = require("./printer/variables");
 const {
   isBlockTag,
@@ -11,23 +13,7 @@ const {
   getValue
 } = require("./printer/helpers");
 
-const {
-  breakParent,
-  concat,
-  join,
-  line,
-  lineSuffix,
-  group,
-  conditionalGroup,
-  indent,
-  dedent,
-  ifBreak,
-  hardline,
-  softline,
-  literalline,
-  align,
-  dedentToRoot
-} = require("prettier").doc.builders;
+const { concat, dedent, hardline } = require("prettier").doc.builders;
 const { mapDoc } = require("prettier").doc.utils;
 
 const TAG_OPEN = "{%";
@@ -60,7 +46,8 @@ function getPlaceholderTags(acc, selfClosing) {
   };
 }
 
-function print(path, options, print) {
+// args: path, options, print
+function print(path) {
   const node = path.getValue();
 
   // 1. Need to find all Nunjucks nodes and replace them with placeholders
@@ -78,12 +65,12 @@ function print(path, options, print) {
       return node.children.reduce(tempExtractTemplateData, acc);
     }
 
-    let selfClosing = !isBlockTag(node); //SELF_CLOSING_TYPES.some(type => type === node.type);
+    const selfClosing = !isBlockTag(node); //SELF_CLOSING_TYPES.some(type => type === node.type);
     const { openTag, openTagKey, closingTag, withinTag } = getPlaceholderTags(
       acc,
       selfClosing
     );
-    let nodeHasElse = hasElse(node);
+    const nodeHasElse = hasElse(node);
 
     // Temporary
     const open = getOpenTagName(node);
@@ -98,7 +85,7 @@ function print(path, options, print) {
     let printOpen = `${TAG_OPEN} ${open} ${getValue(
       node
     )} ${TAG_CLOSE}${afterPrintOpen}`;
-    let printClose = selfClosing ? "" : `${TAG_OPEN} ${close} ${TAG_CLOSE}`;
+    const printClose = selfClosing ? "" : `${TAG_OPEN} ${close} ${TAG_CLOSE}`;
 
     // TODO Split out elsewhere
     // Handle Printing
@@ -194,22 +181,25 @@ function print(path, options, print) {
             placeholderMap.delete(part.replace(">", ""));
             parts.push(original.print);
             return;
-          } else {
-            let found = false;
-
-            // Potentially the placeholder is buried within a string
-            for (let [key, value] of placeholderMap) {
-              if (part.includes(key)) {
-                const replaced = part.replace(key, value.print);
-                parts.push(replaced);
-                found = true;
-                break;
-              }
-            }
-
-            if (found) return;
           }
 
+          let found = false;
+
+          // Potentially the placeholder is buried within a string
+          for (const [key, value] of placeholderMap) {
+            if (part.includes(key)) {
+              const replaced = part.replace(key, value.print);
+              parts.push(replaced);
+              found = true;
+              break;
+            }
+          }
+
+          if (found) {
+            return;
+          }
+
+          // eslint-disable-next-line no-console
           console.warn("Unable to find original for placeholder:", part);
           return;
         }
@@ -244,9 +234,13 @@ function print(path, options, print) {
 
               const remainingParts = arr.slice(nextIndex);
 
+              // TODO: Resolve ESLint error
+              // eslint-disable-next-line
               function elsePlaceholderReplacer(part) {
                 // Start fast bail
-                if (typeof part !== "object") return false;
+                if (typeof part !== "object") {
+                  return false;
+                }
 
                 switch (part.type) {
                   case "line":
@@ -292,12 +286,18 @@ function print(path, options, print) {
                     const elseIndex = childParts.findIndex(
                       elsePlaceholderReplacer
                     );
-                    if (elseIndex === -1) return false;
+
+                    if (elseIndex === -1) {
+                      return false;
+                    }
 
                     // If we've found else, we'll need to clean out the extra lines
                     // TODO: Split out function to helper
+                    // eslint-disable-next-line no-inner-declarations
                     function isLine(part) {
-                      if (typeof part !== "object") return false;
+                      if (typeof part !== "object") {
+                        return false;
+                      }
 
                       switch (part.type) {
                         case "line":
@@ -308,7 +308,9 @@ function print(path, options, print) {
                       }
                     }
 
-                    if (elseIndex === -1) return true;
+                    if (elseIndex === -1) {
+                      return true;
+                    }
 
                     // Clear backwards
                     for (let i = elseIndex - 1; i > -1; i--) {
@@ -350,6 +352,7 @@ function print(path, options, print) {
             return;
           }
 
+          // eslint-disable-next-line no-console
           console.warn(
             "Unable to find original for placeholder:",
             part.contents
@@ -385,30 +388,42 @@ function print(path, options, print) {
   return map;
 }
 
-function embed(path, print, textToDoc, options) {
+// args: path, print, textToDoc, options
+function embed(path, print, textToDoc) {
   hoistedTextToDoc = textToDoc;
   return null;
 }
 
 function isSelfClosingPlaceholder(arr) {
-  if (!Array.isArray(arr) || !arr.length) return false;
+  if (!Array.isArray(arr) || !arr.length) {
+    return false;
+  }
 
   const isOpeningGroup = arr[0].type === "group";
   const isSelfClosing = arr[1] === "/>";
-  if (!isOpeningGroup || !isSelfClosing) return;
+
+  if (!isOpeningGroup || !isSelfClosing) {
+    return;
+  }
 
   return PLACEHOLDER_REGEX.test(arr[0].contents.contents);
 }
 
 function getSelfClosingPlaceholder(doc, placeholderMap) {
-  if (typeof doc !== "object") return;
+  if (typeof doc !== "object") {
+    return;
+  }
 
-  const parts = doc.parts;
+  const { parts } = doc;
 
-  if (!parts) return;
+  if (!parts) {
+    return;
+  }
 
   const isPlaceholder = isSelfClosingPlaceholder(parts);
-  if (!isPlaceholder) return;
+  if (!isPlaceholder) {
+    return;
+  }
 
   const placeholder = parts[0].contents.contents.trim();
   return placeholderMap.get(placeholder);

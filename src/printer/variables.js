@@ -2,21 +2,25 @@
  * Variable Printers
  */
 
+"use strict";
+
 const DELIMITER_OPEN = "{{";
 const DELIMITER_CLOSE = "}}";
 
 function buildVariable(node) {
-  if (node.value) return node.value;
+  if (node.value) {
+    return node.value;
+  }
 
   const valIsNumber = Number.isInteger(node.val.value);
-  let left = node.target ? buildVariable(node.target) : node.value;
+  const left = node.target ? buildVariable(node.target) : node.value;
 
   const useDot = node.val.type === "Literal" && !valIsNumber;
 
   const open = useDot ? "." : "[";
   const close = useDot ? "" : "]";
 
-  let right = `${open}${node.val.value}${close}`;
+  const right = `${open}${node.val.value}${close}`;
   return `${left}${right}`;
 }
 

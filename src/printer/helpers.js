@@ -2,6 +2,8 @@
  * Printer Helpers
  */
 
+"use strict";
+
 function isBlockTag(node) {
   return !!(node.body && node.body.children);
 }
@@ -14,9 +16,7 @@ function getOpenTagName(node) {
   return `${node.type.substring(0, 1).toLowerCase()}${node.type.substring(1)}`;
 }
 
-function getCloseTagName(node) {
-  let type = node.type;
-
+function getCloseTagName({ type }) {
   if (type === "AsyncAll" || type === "AsyncEach") {
     type = type.replace("Async", "");
   }
@@ -68,8 +68,13 @@ function getValue(node) {
     return extendsValue;
   }
 
-  if (node.cond && node.cond.value) return node.cond.value;
-  if (node.value && node.value.value) return node.value.value;
+  if (node.cond && node.cond.value) {
+    return node.cond.value;
+  }
+
+  if (node.value && node.value.value) {
+    return node.value.value;
+  }
 
   return "---";
 }
@@ -77,7 +82,7 @@ function getValue(node) {
 module.exports = {
   isBlockTag,
   hasElse,
-  getOpenTagName: getOpenTagName,
+  getOpenTagName,
   getCloseTagName,
   getValue
 };
