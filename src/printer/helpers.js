@@ -12,8 +12,12 @@ function hasElse(node) {
   return !!(node.else_ && node.else_.children);
 }
 
-function getOpenTagName(node) {
-  return `${node.type.substring(0, 1).toLowerCase()}${node.type.substring(1)}`;
+function getOpenTagName({ type }) {
+  if (type === "FromImport") {
+    type = "from";
+  }
+
+  return `${type.substring(0, 1).toLowerCase()}${type.substring(1)}`;
 }
 
 function getCloseTagName({ type }) {
@@ -67,6 +71,18 @@ function getValue(node) {
 
     if (node.ignoreMissing) {
       extendsValue = `${extendsValue} ignore missing`;
+    } else if (node.target) {
+      extendsValue = `${extendsValue} as ${node.target.value}`;
+    } else if (node.names) {
+      const keys = node.names.children.map(name => {
+        if (typeof name.value === "string") {
+          return name.value;
+        }
+
+        return `${name.key.value} as ${name.value.value}`;
+      });
+
+      extendsValue = `${extendsValue} import ${keys.join(", ")}`;
     }
 
     return extendsValue;

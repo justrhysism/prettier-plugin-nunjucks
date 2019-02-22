@@ -24,7 +24,7 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 - [x] extends
 - [x] block
 - [x] include
-- [ ] import
+- [x] import
 - [ ] raw
 - [ ] verbatim
 - [ ] filter
