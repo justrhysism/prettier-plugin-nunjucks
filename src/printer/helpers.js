@@ -12,7 +12,9 @@ function hasElse(node) {
   return !!(node.else_ && node.else_.children);
 }
 
-function getOpenTagName({ type }) {
+function getOpenTagName(node) {
+  let { type } = node;
+
   if (type === "FromImport") {
     type = "from";
   }
