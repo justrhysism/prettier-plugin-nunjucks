@@ -41,6 +41,11 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 - [ ] [Keyword arguments](https://mozilla.github.io/nunjucks/templating.html#keyword-arguments)
 - [ ] [Math](https://mozilla.github.io/nunjucks/templating.html#math)
 
+### Options
+- [ ] Accept Prettier options for consistency
+  - [ ] Quote marks
+- [ ] Accept Nunjucks options for tags etc.
+
 ### Code
 
 - [ ] Refactor
