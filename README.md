@@ -23,7 +23,7 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
   - [ ] endset
 - [x] extends
 - [x] block
-- [ ] include
+- [x] include
 - [ ] import
 - [ ] raw
 - [ ] verbatim
