@@ -65,6 +65,10 @@ function getValue(node) {
         extendsValue = buildValue(node.template);
     }
 
+    if (node.ignoreMissing) {
+      extendsValue = `${extendsValue} ignore missing`;
+    }
+
     return extendsValue;
   }
 
@@ -79,10 +83,25 @@ function getValue(node) {
   return "---";
 }
 
+function isBuilderLine(part) {
+  if (typeof part !== "object") {
+    return false;
+  }
+
+  switch (part.type) {
+    case "line":
+    case "break-parent":
+      return true;
+    default:
+      return false;
+  }
+}
+
 module.exports = {
   isBlockTag,
   hasElse,
   getOpenTagName,
   getCloseTagName,
-  getValue
+  getValue,
+  isBuilderLine
 };

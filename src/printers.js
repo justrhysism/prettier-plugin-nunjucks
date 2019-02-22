@@ -10,7 +10,8 @@ const {
   hasElse,
   getOpenTagName,
   getCloseTagName,
-  getValue
+  getValue,
+  isBuilderLine
 } = require("./printer/helpers");
 
 const { concat, dedent, hardline } = require("prettier").doc.builders;
@@ -291,23 +292,6 @@ function print(path) {
                       return false;
                     }
 
-                    // If we've found else, we'll need to clean out the extra lines
-                    // TODO: Split out function to helper
-                    // eslint-disable-next-line no-inner-declarations
-                    function isLine(part) {
-                      if (typeof part !== "object") {
-                        return false;
-                      }
-
-                      switch (part.type) {
-                        case "line":
-                        case "break-parent":
-                          return true;
-                        default:
-                          return false;
-                      }
-                    }
-
                     if (elseIndex === -1) {
                       return true;
                     }
@@ -315,7 +299,7 @@ function print(path) {
                     // Clear backwards
                     for (let i = elseIndex - 1; i > -1; i--) {
                       const childPart = childParts[i];
-                      if (isLine(childPart)) {
+                      if (isBuilderLine(childPart)) {
                         childParts[i] = "";
                       } else {
                         break;
@@ -325,7 +309,7 @@ function print(path) {
                     // Clear Forwards
                     for (let i = elseIndex + 1; i < childParts.length; i++) {
                       const childPart = childParts[i];
-                      if (isLine(childPart)) {
+                      if (isBuilderLine(childPart)) {
                         childParts[i] = "";
                       } else {
                         if (childParts[i] && childParts[i].type === "group") {
