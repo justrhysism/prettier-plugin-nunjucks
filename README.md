@@ -35,7 +35,7 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 
 - [x] [Variables](https://mozilla.github.io/nunjucks/templating.html#variables)
 - [ ] [Comments](https://mozilla.github.io/nunjucks/templating.html#comments)
-- [ ] [Filters](https://mozilla.github.io/nunjucks/templating.html#filters)
+- [x] [Filters](https://mozilla.github.io/nunjucks/templating.html#filters)
 - [ ] [Whitespace control](https://mozilla.github.io/nunjucks/templating.html#whitespace-control) (for tags)
 - [ ] [If expression](https://mozilla.github.io/nunjucks/templating.html#if-expression)
 - [ ] [Keyword arguments](https://mozilla.github.io/nunjucks/templating.html#keyword-arguments)

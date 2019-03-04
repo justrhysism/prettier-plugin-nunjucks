@@ -88,11 +88,14 @@ function print(path) {
     )} ${TAG_CLOSE}${afterPrintOpen}`;
     const printClose = selfClosing ? "" : `${TAG_OPEN} ${close} ${TAG_CLOSE}`;
 
+    // TODO: Better Filter checking - doesn't yet support filter block tags
+
     // TODO Split out elsewhere
     // Handle Printing
     switch (node.type) {
       case "Symbol":
       case "LookupVal":
+      case "Filter":
         printOpen = printVariable(node);
         break;
       case "FunCall":

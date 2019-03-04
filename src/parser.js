@@ -9,17 +9,10 @@ const ast = require("./ast");
 
 // args: text, parsers, options
 function parse(text) {
-  // let node = ast.normalize(parser.parse(str));
-
-  // if (opts && opts.verbose) {
-  // 	node = ast.walk(node, n => {
-  // 		n.parent = n.parent ? n.parent.type : null
-  // 	});
-  // } else if (opts && opts.clean === true) {
-  // 	node = ast.clean(node);
-  // }
   const nunjParsed = nunjucks.parse(text);
-  return ast.normalize(nunjParsed);
+  const normalised = ast.normalize(nunjParsed);
+  normalised.raw = text;
+  return normalised;
 }
 
 function locStart(node) {

@@ -4,25 +4,9 @@
 
 "use strict";
 
+const { handleFilter, buildVariable } = require("./helpers");
 const DELIMITER_OPEN = "{{";
 const DELIMITER_CLOSE = "}}";
-
-function buildVariable(node) {
-  if (node.value) {
-    return node.value;
-  }
-
-  const valIsNumber = Number.isInteger(node.val.value);
-  const left = node.target ? buildVariable(node.target) : node.value;
-
-  const useDot = node.val.type === "Literal" && !valIsNumber;
-
-  const open = useDot ? "." : "[";
-  const close = useDot ? "" : "]";
-
-  const right = `${open}${node.val.value}${close}`;
-  return `${left}${right}`;
-}
 
 function printVariable(node) {
   let variable = "";
@@ -33,6 +17,9 @@ function printVariable(node) {
       break;
     case "LookupVal":
       variable = buildVariable(node);
+      break;
+    case "Filter":
+      variable = handleFilter(node);
       break;
   }
 

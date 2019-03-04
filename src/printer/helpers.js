@@ -4,6 +4,14 @@
 
 "use strict";
 
+function escapeString(input) {
+  if (typeof input === "string") {
+    return input.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+  }
+
+  return input;
+}
+
 function isBlockTag(node) {
   return !!(node.body && node.body.children);
 }
@@ -30,15 +38,62 @@ function getCloseTagName({ type }) {
   return `end${type.toLowerCase()}`;
 }
 
+function buildVariable(node) {
+  if (node.value || !node.val) {
+    return buildValue(node);
+  }
+
+  const valIsNumber = Number.isInteger(node.val.value);
+  const left = node.target ? buildVariable(node.target) : node.value;
+
+  const useDot = node.val.type === "Literal" && !valIsNumber;
+
+  const open = useDot ? "." : "[";
+  const close = useDot ? "" : "]";
+
+  const right = `${open}${node.val.value}${close}`;
+  return `${left}${right}`;
+}
+
 function buildValue(node) {
-  if (node.type === "Literal" && !Number.isFinite(node.value)) {
-    return `"${node.value}"`;
+  if (
+    node.type === "Literal" &&
+    !Number.isFinite(node.value) &&
+    typeof node.value !== "boolean"
+  ) {
+    return `"${escapeString(node.value)}"`;
+  }
+
+  if (node.type === "Neg") {
+    return `-${buildValue(node.target)}`;
   }
 
   return node.value;
 }
 
+function handleFilter(node) {
+  if (node.type !== "Filter") {
+    return buildVariable(node);
+  }
+
+  const filter = node.name.value;
+  const filterArgs = node.args.children.splice(1).map(buildValue);
+  const leftOfPipe = handleFilter(node.args.children[0]);
+
+  const filterArgsRender = filterArgs.length
+    ? `(${filterArgs.join(", ")})`
+    : "";
+  const rightOfPipe = `${filter}${filterArgsRender}`;
+  return `${leftOfPipe} | ${rightOfPipe}`;
+}
+
 function getValue(node) {
+  // Variable Filter
+  // if (node.type === "Filter") {
+  //   return handleFilter(node);
+  // }
+
+  // Set
   if (node.targets) {
     const left = node.targets.map(t => t.value).join(", ");
     const right = buildValue(node.value);
@@ -46,6 +101,7 @@ function getValue(node) {
     return `${left} = ${right}`;
   }
 
+  // For loop
   if (node.name) {
     let keys = node.name.value;
 
@@ -55,9 +111,15 @@ function getValue(node) {
       return keys;
     }
 
+    // Filter
+    if (node.arr.type === "Filter") {
+      node.arr.value = handleFilter(node.arr);
+    }
+
     return `${keys} in ${node.arr.value}`;
   }
 
+  // Extends
   if (node.template) {
     let extendsValue = "";
 
@@ -90,10 +152,12 @@ function getValue(node) {
     return extendsValue;
   }
 
+  // If
   if (node.cond && node.cond.value) {
     return node.cond.value;
   }
 
+  // Variable
   if (node.value && node.value.value) {
     return node.value.value;
   }
@@ -121,5 +185,7 @@ module.exports = {
   getOpenTagName,
   getCloseTagName,
   getValue,
-  isBuilderLine
+  isBuilderLine,
+  handleFilter,
+  buildVariable
 };

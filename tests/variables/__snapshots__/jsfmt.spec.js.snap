@@ -1,15 +1,70 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`filters.njk - nunjucks-verify: filters.njk 1`] = `
+{{ -3|abs }}
+
+{{ "3.5" | float }}
+
+{{ "This Is A Test" | capitalize }}
+
+{{ items | dump(2) }}
+
+{{ items | dump('\\t') }}
+
+{{ "one\\ntwo\\nthree" | indent(6, true) }}
+
+{{ letters | replace("a", "x", 2) }}
+
+{{ deep.variable.somehow | thing }}
+
+{{ "foo\\nbar" | replace("a", "x", 2) | striptags(true) | escape | nl2br }}
+
+{% for item in items | batch(2) | striptags(true) %}
+{% endfor %}
+
+{% for type, items in items | groupby("type") %}
+{% endfor %}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{{ -3 | abs }}
+
+{{ "3.5" | float }}
+
+{{ "This Is A Test" | capitalize }}
+
+{{ items | dump(2) }}
+
+{{ items | dump("\\t") }}
+
+{{ "one\\ntwo\\nthree" | indent(6, true) }}
+
+{{ letters | replace("a", "x", 2) }}
+
+{{ deep.variable.somehow | thing }}
+
+{{ "foo\\nbar" | replace("a", "x", 2) | striptags(true) | escape | nl2br }}
+
+{% for item in items | batch(2) | striptags(true) %} {% endfor %}
+
+{% for type, items in items | groupby("type") %} {% endfor %}
+
+`;
+
 exports[`variables.njk - nunjucks-verify: variables.njk 1`] = `
-{{ variable1 }}
+{{variable1}}
 
-{{ variable2 }}
+{{   variable2 }}
 
-{{ variable3 }}
+{{
+variable3 }}
 
-{{ variable4 }}
+{{
 
-{{ variable5 }}
+       variable4 }}
+
+{{
+variable5
+}}
 
 <div>{{ variable7 }}</div>
 
