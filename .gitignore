@@ -1,5 +1,6 @@
 ### Custom ###
 scratch*
+/standalone.js
 
 # Blanket IntelliJ
 .idea/
