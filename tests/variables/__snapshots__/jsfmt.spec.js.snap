@@ -1,6 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`filters.njk - nunjucks-verify: filters.njk 1`] = `
+exports[`filters.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 {{ -3|abs }}
 
 {{ "3.5" | float }}
@@ -25,7 +30,8 @@ exports[`filters.njk - nunjucks-verify: filters.njk 1`] = `
 {% for type, items in items | groupby("type") %}
 {% endfor %}
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 {{ -3 | abs }}
 
 {{ "3.5" | float }}
@@ -48,9 +54,15 @@ exports[`filters.njk - nunjucks-verify: filters.njk 1`] = `
 
 {% for type, items in items | groupby("type") %} {% endfor %}
 
+================================================================================
 `;
 
-exports[`variables.njk - nunjucks-verify: variables.njk 1`] = `
+exports[`variables.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 {{variable1}}
 
 {{   variable2 }}
@@ -87,7 +99,8 @@ variable5
 {{ variable17.foo[bar] }}
 {{ variable18[1] }}
 {{ variable19.a.b.c.d }}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 {{ variable1 }}
 
 {{ variable2 }}
@@ -120,4 +133,5 @@ variable5
 {{ variable18[1] }}
 {{ variable19.a.b.c.d }}
 
+================================================================================
 `;

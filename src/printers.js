@@ -43,7 +43,8 @@ function print(path) {
         const forkElement = placeholder.trim().split(' ')[1];
         const forkKey = forkElement.replace('>', '');
         placeholderMap.set(forkKey, {
-          print: ''
+          print: '',
+          isFork
         });
       } else {}
 
@@ -82,11 +83,16 @@ function print(path) {
           if (original) {
             placeholderMap.delete(part);
             placeholderMap.delete(part.replace(">", ""));
-            parts.push(original.print);
 
-            // if (original.isFork) {
-            //   console.log('We should consider removing that empty line...');
-            // }
+            if (original.print !== '') {
+              parts.push(original.print);
+            } else if (original.isFork) {
+              // Remove extra line
+              const nextPart = arr[index + 1];
+              if (nextPart && nextPart.type === 'break-parent' || nextPart.type === 'line') {
+                arr.splice(index + 1, 1);
+              }
+            }
 
             return;
           }
@@ -126,119 +132,18 @@ function print(path) {
           if (original) {
             placeholderMap.delete(part.contents);
             placeholderMap.delete(part.contents.replace(">", ""));
-            parts.push(Object.assign({}, part, { contents: original.print }));
 
-            // if (original.isFork) {
-            //   /*
-            //   So, we need to look ahead to replace the placeholder for the else
-            //   This should look like:
-            //   contents: {
-            //     parts: [
-            //       { ...contents: { ...contents: '<pN' <-- THEN THIS } },
-            //       '/>' <-- LOOK FOR THIS FIRST
-            //     ]
-            //   }
-            //   */
-            //
-            //   const remainingParts = arr.slice(nextIndex);
-            //
-            //   // TODO: Resolve ESLint error
-            //   // eslint-disable-next-line
-            //   function elsePlaceholderReplacer(part) {
-            //     // Start fast bail
-            //     if (typeof part !== "object") {
-            //       return false;
-            //     }
-            //
-            //     switch (part.type) {
-            //       case "line":
-            //       case "break-parent":
-            //         return false;
-            //     }
-            //     // End fast bail
-            //
-            //     // Look for "/>"
-            //     if (typeof part.contents === "object") {
-            //       const childParts = part.contents.parts;
-            //
-            //       if (childParts) {
-            //         // Will be the last item of the group
-            //         // TODO: Use function getSelfClosingPlaceholder()
-            //         if (childParts[childParts.length - 1] === "/>") {
-            //           return childParts.find(childPart => {
-            //             if (
-            //               PLACEHOLDER_REGEX.test(childPart.contents.contents)
-            //             ) {
-            //               const placeholder = childPart.contents.contents.trim();
-            //               const elseReplacementModel = placeholderMap.get(
-            //                 placeholder
-            //               );
-            //
-            //               if (elseReplacementModel) {
-            //                 part.contents = dedent(
-            //                   concat([
-            //                     hardline,
-            //                     elseReplacementModel.print
-            //                     // hardline
-            //                   ])
-            //                 );
-            //
-            //                 return true;
-            //               }
-            //
-            //               return false;
-            //             }
-            //           });
-            //         }
-            //
-            //         const elseIndex = childParts.findIndex(
-            //           elsePlaceholderReplacer
-            //         );
-            //
-            //         if (elseIndex === -1) {
-            //           return false;
-            //         }
-            //
-            //         if (elseIndex === -1) {
-            //           return true;
-            //         }
-            //
-            //         // Clear backwards
-            //         for (let i = elseIndex - 1; i > -1; i--) {
-            //           const childPart = childParts[i];
-            //           if (isBuilderLine(childPart)) {
-            //             childParts[i] = "";
-            //           } else {
-            //             break;
-            //           }
-            //         }
-            //
-            //         // Clear Forwards
-            //         for (let i = elseIndex + 1; i < childParts.length; i++) {
-            //           const childPart = childParts[i];
-            //           if (isBuilderLine(childPart)) {
-            //             childParts[i] = "";
-            //           } else {
-            //             if (childParts[i] && childParts[i].type === "group") {
-            //               childParts[i] = concat([hardline, childParts[i]]);
-            //             }
-            //             break;
-            //           }
-            //         }
-            //
-            //         return true;
-            //       }
-            //
-            //       // Case contents.contents.parts
-            //       return elsePlaceholderReplacer(part.contents);
-            //     }
-            //
-            //     return false;
-            //   }
-            //
-            //   // Using find so we can bail when we're done
-            //   remainingParts.find(elsePlaceholderReplacer);
-            // }
+            if (original.print !== '') {
+              parts.push(Object.assign({}, part, { contents: original.print }));
+            } else if (original.isFork) {
+              // Remove extra line
+              const nextPart = arr[index + 1];
+              if (nextPart || nextPart.type === 'line') {
+                arr.splice(index + 1, 1);
+              } else if (nextPart  && nextPart.type === 'break-parent') {
+                // TODO: Dig into the indent and remove the line at the top
+              }
+            }
 
             return;
           }
@@ -258,7 +163,7 @@ function print(path) {
           placeholderMap
         );
 
-        if (selfClosingPlaceholder && selfClosingPlaceholder.type !== "else") {
+        if (selfClosingPlaceholder) {
           parts.push(selfClosingPlaceholder.print);
 
           if (arr[nextIndex] === "/>") {

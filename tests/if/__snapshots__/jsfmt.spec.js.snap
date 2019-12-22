@@ -1,6 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`if.njk - nunjucks-verify: if.njk 1`] = `
+exports[`if.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 <div>Foo</div>
 
 {% if foo3 %}<span></span>{% endif %}
@@ -62,7 +67,8 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
 {% if foo61 %}
 {{ value62 }}
 {% endif %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 <div>Foo</div>
 
 {% if foo3 %}
@@ -137,4 +143,5 @@ exports[`if.njk - nunjucks-verify: if.njk 1`] = `
   {{ value62 }}
 {% endif %}
 
+================================================================================
 `;

@@ -1,6 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`asyncAll.njk - nunjucks-verify: asyncAll.njk 1`] = `
+exports[`asyncAll.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 <div>Foo</div>
 
 {% asyncAll item in items %}
@@ -36,7 +41,8 @@ class="attribute"
 {% asyncAll item2 in items2 %}
 {% endall %}
 {% endall %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 <div>Foo</div>
 
 {% asyncAll item in items %}
@@ -77,9 +83,15 @@ class="attribute"
   {% asyncAll item2 in items2 %} {% endall %}
 {% endall %}
 
+================================================================================
 `;
 
-exports[`asyncEach.njk - nunjucks-verify: asyncEach.njk 1`] = `
+exports[`asyncEach.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 <div>Foo</div>
 
 {% asyncEach item in items %}
@@ -115,7 +127,8 @@ class="attribute"
 {% asyncEach item2 in items2 %}
 {% endeach %}
 {% endeach %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 <div>Foo</div>
 
 {% asyncEach item in items %}
@@ -156,9 +169,15 @@ class="attribute"
   {% asyncEach item2 in items2 %} {% endeach %}
 {% endeach %}
 
+================================================================================
 `;
 
-exports[`for.njk - nunjucks-verify: for.njk 1`] = `
+exports[`for.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 <div>Foo</div>
 
 {% for item in items %}
@@ -194,7 +213,8 @@ class="attribute"
 {% for item2 in items2 %}
 {% endfor %}
 {% endfor %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 <div>Foo</div>
 
 {% for item in items %}
@@ -235,4 +255,5 @@ class="attribute"
   {% for item2 in items2 %} {% endfor %}
 {% endfor %}
 
+================================================================================
 `;
