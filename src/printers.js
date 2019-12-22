@@ -13,147 +13,46 @@ const {
   getValue,
   isBuilderLine
 } = require("./printer/helpers");
-
+//
 const { concat, dedent, hardline } = require("prettier").doc.builders;
 const { mapDoc } = require("prettier").doc.utils;
-
-const TAG_OPEN = "{%";
-const TAG_CLOSE = "%}";
-const PLACEHOLDER_REGEX = /Placeholder-\d+/;
+//
+// const TAG_OPEN = "{%";
+// const TAG_CLOSE = "%}";
+const PLACEHOLDER_REGEX = /p\d+/;
 
 let hoistedTextToDoc;
 
-let placeholderIncrement = 0;
-
-function getPlaceholderTags(acc, selfClosing) {
-  placeholderIncrement++;
-  const placeholder = `Placeholder-${placeholderIncrement}`;
-
-  const lastTagStartChar = acc.lastIndexOf("<");
-  const lastTagEndChar = acc.lastIndexOf(">");
-  const withinTag = lastTagStartChar > lastTagEndChar;
-
-  const tagOpenStartChar = withinTag ? "o-" : selfClosing ? "<" : "\n<";
-  const tagOpenEndChar = withinTag ? " " : selfClosing ? "/> " : ">\n";
-  const tagCloseStartChar = withinTag ? "c-" : `\n</`;
-
-  return {
-    openTag: `${tagOpenStartChar}${placeholder}${tagOpenEndChar}`,
-    openTagKey: `${tagOpenStartChar}${placeholder}`.trim(),
-    closingTag: selfClosing
-      ? ""
-      : `${tagCloseStartChar}${placeholder}${tagOpenEndChar}`,
-    withinTag
-  };
-}
-
 // args: path, options, print
 function print(path) {
-  const node = path.getValue();
-
+  const parsedArray = path.stack[0];
   // 1. Need to find all Nunjucks nodes and replace them with placeholders
   // 2. Run the place-held doc through the HTML formatter
   // 3. Upon return, re-instate the Nunjucks template tags with formatting
 
   const placeholderMap = new Map();
 
-  function tempExtractTemplateData(acc, node) {
-    if (node.type === "TemplateData") {
-      return acc + node.value;
-    }
-
-    if (node.children) {
-      return node.children.reduce(tempExtractTemplateData, acc);
-    }
-
-    const selfClosing = !isBlockTag(node); //SELF_CLOSING_TYPES.some(type => type === node.type);
-    const { openTag, openTagKey, closingTag, withinTag } = getPlaceholderTags(
-      acc,
-      selfClosing
-    );
-    const nodeHasElse = hasElse(node);
-
-    // Temporary
-    const open = getOpenTagName(node);
-    const close = getCloseTagName(node);
-
-    let afterPrintOpen = "";
-
-    if (node.type === "Extends") {
-      afterPrintOpen = "\n";
-    }
-
-    let printOpen = `${TAG_OPEN} ${open} ${getValue(
-      node
-    )} ${TAG_CLOSE}${afterPrintOpen}`;
-    const printClose = selfClosing ? "" : `${TAG_OPEN} ${close} ${TAG_CLOSE}`;
-
-    // TODO: Better Filter checking - doesn't yet support filter block tags
-
-    // TODO Split out elsewhere
-    // Handle Printing
-    switch (node.type) {
-      case "Symbol":
-      case "LookupVal":
-      case "Filter":
-        printOpen = printVariable(node);
-        break;
-      case "FunCall":
-        printOpen = `{{ ${node.name.value}() }}`;
-        break;
-    }
-
-    if (printOpen) {
-      acc += openTag;
-    }
-
-    placeholderMap.set(openTagKey, {
-      tagType: "open",
-      type: node.type,
-      print: printOpen,
-      withinTag,
-      hasElse: nodeHasElse
-    });
-
-    if (closingTag.trim()) {
-      placeholderMap.set(closingTag.trim(), {
-        tagType: "close",
-        type: node.type,
-        print: printClose,
-        withinTag
-      });
-    }
-
-    if (isBlockTag(node)) {
-      // TODO: This reducer doesn't work inside a tag - renders tags within
-      acc = node.body.children.reduce(tempExtractTemplateData, acc);
-    }
-
-    if (nodeHasElse) {
-      const elseTags = getPlaceholderTags(acc, true);
-      const elseOpenTag = elseTags.openTag;
-      const elseOpenTagKey = elseTags.openTagKey;
-
-      placeholderMap.set(elseOpenTagKey, {
-        tagType: "single",
-        type: "else",
-        print: "{% else %}",
-        withinTag
-      });
-
-      acc += elseOpenTag;
-      acc = node.else_.children.reduce(tempExtractTemplateData, acc);
-    }
-
-    if (printClose) {
-      acc += closingTag;
-    }
-
-    return acc;
-  }
-
   // 1. Install placeholders
-  const placeheldString = node.children.reduce(tempExtractTemplateData, "");
+  const placeheldString = parsedArray.reduce((acc, token) => {
+    const { type, value, key, placeholder, isFork, withinElement } = token;
+
+    if (type === "tag") {
+      placeholderMap.set(key, token);
+
+      if (isFork) {
+        const forkElement = placeholder.trim().split(' ')[1];
+        const forkKey = forkElement.replace('>', '');
+        placeholderMap.set(forkKey, {
+          print: ''
+        });
+      } else {}
+
+
+      return acc + placeholder;
+    }
+
+    return acc + value;
+  }, "");
   // console.log("###");
   // console.log(placeheldString);
   // console.log("###");
@@ -184,6 +83,11 @@ function print(path) {
             placeholderMap.delete(part);
             placeholderMap.delete(part.replace(">", ""));
             parts.push(original.print);
+
+            // if (original.isFork) {
+            //   console.log('We should consider removing that empty line...');
+            // }
+
             return;
           }
 
@@ -224,117 +128,117 @@ function print(path) {
             placeholderMap.delete(part.contents.replace(">", ""));
             parts.push(Object.assign({}, part, { contents: original.print }));
 
-            if (original.hasElse) {
-              /*
-              So, we need to look ahead to replace the placeholder for the else
-              This should look like:
-              contents: {
-                parts: [
-                  { ...contents: { ...contents: '<Placeholder-N' <-- THEN THIS } },
-                  '/>' <-- LOOK FOR THIS FIRST
-                ]
-              }
-              */
-
-              const remainingParts = arr.slice(nextIndex);
-
-              // TODO: Resolve ESLint error
-              // eslint-disable-next-line
-              function elsePlaceholderReplacer(part) {
-                // Start fast bail
-                if (typeof part !== "object") {
-                  return false;
-                }
-
-                switch (part.type) {
-                  case "line":
-                  case "break-parent":
-                    return false;
-                }
-                // End fast bail
-
-                // Look for "/>"
-                if (typeof part.contents === "object") {
-                  const childParts = part.contents.parts;
-
-                  if (childParts) {
-                    // Will be the last item of the group
-                    // TODO: Use function getSelfClosingPlaceholder()
-                    if (childParts[childParts.length - 1] === "/>") {
-                      return childParts.find(childPart => {
-                        if (
-                          PLACEHOLDER_REGEX.test(childPart.contents.contents)
-                        ) {
-                          const placeholder = childPart.contents.contents.trim();
-                          const elseReplacementModel = placeholderMap.get(
-                            placeholder
-                          );
-
-                          if (elseReplacementModel) {
-                            part.contents = dedent(
-                              concat([
-                                hardline,
-                                elseReplacementModel.print
-                                // hardline
-                              ])
-                            );
-
-                            return true;
-                          }
-
-                          return false;
-                        }
-                      });
-                    }
-
-                    const elseIndex = childParts.findIndex(
-                      elsePlaceholderReplacer
-                    );
-
-                    if (elseIndex === -1) {
-                      return false;
-                    }
-
-                    if (elseIndex === -1) {
-                      return true;
-                    }
-
-                    // Clear backwards
-                    for (let i = elseIndex - 1; i > -1; i--) {
-                      const childPart = childParts[i];
-                      if (isBuilderLine(childPart)) {
-                        childParts[i] = "";
-                      } else {
-                        break;
-                      }
-                    }
-
-                    // Clear Forwards
-                    for (let i = elseIndex + 1; i < childParts.length; i++) {
-                      const childPart = childParts[i];
-                      if (isBuilderLine(childPart)) {
-                        childParts[i] = "";
-                      } else {
-                        if (childParts[i] && childParts[i].type === "group") {
-                          childParts[i] = concat([hardline, childParts[i]]);
-                        }
-                        break;
-                      }
-                    }
-
-                    return true;
-                  }
-
-                  // Case contents.contents.parts
-                  return elsePlaceholderReplacer(part.contents);
-                }
-
-                return false;
-              }
-
-              // Using find so we can bail when we're done
-              remainingParts.find(elsePlaceholderReplacer);
-            }
+            // if (original.isFork) {
+            //   /*
+            //   So, we need to look ahead to replace the placeholder for the else
+            //   This should look like:
+            //   contents: {
+            //     parts: [
+            //       { ...contents: { ...contents: '<pN' <-- THEN THIS } },
+            //       '/>' <-- LOOK FOR THIS FIRST
+            //     ]
+            //   }
+            //   */
+            //
+            //   const remainingParts = arr.slice(nextIndex);
+            //
+            //   // TODO: Resolve ESLint error
+            //   // eslint-disable-next-line
+            //   function elsePlaceholderReplacer(part) {
+            //     // Start fast bail
+            //     if (typeof part !== "object") {
+            //       return false;
+            //     }
+            //
+            //     switch (part.type) {
+            //       case "line":
+            //       case "break-parent":
+            //         return false;
+            //     }
+            //     // End fast bail
+            //
+            //     // Look for "/>"
+            //     if (typeof part.contents === "object") {
+            //       const childParts = part.contents.parts;
+            //
+            //       if (childParts) {
+            //         // Will be the last item of the group
+            //         // TODO: Use function getSelfClosingPlaceholder()
+            //         if (childParts[childParts.length - 1] === "/>") {
+            //           return childParts.find(childPart => {
+            //             if (
+            //               PLACEHOLDER_REGEX.test(childPart.contents.contents)
+            //             ) {
+            //               const placeholder = childPart.contents.contents.trim();
+            //               const elseReplacementModel = placeholderMap.get(
+            //                 placeholder
+            //               );
+            //
+            //               if (elseReplacementModel) {
+            //                 part.contents = dedent(
+            //                   concat([
+            //                     hardline,
+            //                     elseReplacementModel.print
+            //                     // hardline
+            //                   ])
+            //                 );
+            //
+            //                 return true;
+            //               }
+            //
+            //               return false;
+            //             }
+            //           });
+            //         }
+            //
+            //         const elseIndex = childParts.findIndex(
+            //           elsePlaceholderReplacer
+            //         );
+            //
+            //         if (elseIndex === -1) {
+            //           return false;
+            //         }
+            //
+            //         if (elseIndex === -1) {
+            //           return true;
+            //         }
+            //
+            //         // Clear backwards
+            //         for (let i = elseIndex - 1; i > -1; i--) {
+            //           const childPart = childParts[i];
+            //           if (isBuilderLine(childPart)) {
+            //             childParts[i] = "";
+            //           } else {
+            //             break;
+            //           }
+            //         }
+            //
+            //         // Clear Forwards
+            //         for (let i = elseIndex + 1; i < childParts.length; i++) {
+            //           const childPart = childParts[i];
+            //           if (isBuilderLine(childPart)) {
+            //             childParts[i] = "";
+            //           } else {
+            //             if (childParts[i] && childParts[i].type === "group") {
+            //               childParts[i] = concat([hardline, childParts[i]]);
+            //             }
+            //             break;
+            //           }
+            //         }
+            //
+            //         return true;
+            //       }
+            //
+            //       // Case contents.contents.parts
+            //       return elsePlaceholderReplacer(part.contents);
+            //     }
+            //
+            //     return false;
+            //   }
+            //
+            //   // Using find so we can bail when we're done
+            //   remainingParts.find(elsePlaceholderReplacer);
+            // }
 
             return;
           }
