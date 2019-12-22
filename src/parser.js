@@ -4,12 +4,17 @@
 
 "use strict";
 
-const nunjucks = require("nunjucks/src/parser");
+const RemoteExtension = require("./extensions/custom-extension");
+const nunjucks = require("nunjucks");
 const ast = require("./ast");
+
+
+const env = new nunjucks.Environment();
+env.addExtension('RemoteExtension', new RemoteExtension());
 
 // args: text, parsers, options
 function parse(text) {
-  const nunjParsed = nunjucks.parse(text);
+  const nunjParsed = nunjucks.parser.parse(text, env.extensionsList);
   const normalised = ast.normalize(nunjParsed);
   normalised.raw = text;
   return normalised;

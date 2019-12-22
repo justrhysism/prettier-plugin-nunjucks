@@ -1,5 +1,5 @@
-{% raw %}{{ raw_output }}{% endraw %}
-
-{% raw %}
-foo {{ bar }}
-  {% endraw %}
+{% remote "/stuff" %}
+  This content will be replaced with the content from /stuff
+      {% error %}
+            There was an error fetching /stuff
+          {% endremote %}

@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`custom.njk - nunjucks-verify: custom.njk 1`] = `
+{% remote "/stuff" %}
+  This content will be replaced with the content from /stuff
+      {% error %}
+            There was an error fetching /stuff
+          {% endremote %}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{% callExtension --- %}
+
+`;
+
+exports[`custom.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
+{% remote "/stuff" %}
+  This content will be replaced with the content from /stuff
+      {% error %}
+            There was an error fetching /stuff
+          {% endremote %}
+
+=====================================output=====================================
+{% callExtension --- %}
+
+================================================================================
+`;
