@@ -17,9 +17,9 @@ function buildPlaceholderTag(id, withinElement, type, nextId) {
   const pid = `p${id}`;
   const keepLine = type === TAG_INLINE || type === TAG_FORK;
 
-  const tagOpenStartChar = withinElement ? "o-" : keepLine ? "<" : "\n<";
+  const tagOpenStartChar = withinElement ? "o$" : keepLine ? "<" : "\n<";
   const tagOpenEndChar = withinElement ? " " : keepLine ? "/> " : ">\n";
-  const tagCloseStartChar = withinElement ? " c-" : `\n</`;
+  const tagCloseStartChar = withinElement ? " c$" : `\n</`;
 
   let placeholder = "";
   let key = "";
@@ -120,6 +120,7 @@ function parse(text) {
         token.type = "tag";
         token.tag = tagName;
         token.tagId = nextId || tagId;
+        token.tagType = tagType;
         token.placeholder = placeholder;
         token.key = key;
         token.withinElement = withinElement;
