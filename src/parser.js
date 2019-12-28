@@ -96,6 +96,12 @@ function parse(text) {
         const lastTagEndChar = latestText.lastIndexOf(">");
         let withinElement = lastTagStartChar > lastTagEndChar;
 
+        if (tagType === TAG_BLOCK && tagStack.length) {
+          // Support nested tags within an element
+          const endStackTag = tagStack[tagStack.length - 1];
+          withinElement = endStackTag.withinElement;
+        }
+
         if (tagType === TAG_END || tagType === TAG_FORK) {
           const offStackTag = tagStack.pop();
           tagId = offStackTag.tagId;
@@ -125,6 +131,11 @@ function parse(text) {
         token.key = key;
         token.withinElement = withinElement;
         token.isFork = tagType === TAG_FORK;
+
+        // if (token.isFork) {
+        //   token.forkBlockId = tagId;
+        // }
+
         // TODO: Rewrite value
         token.print = `{% ${value} %}`; // TODO: Use configured tags
 

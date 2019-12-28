@@ -2,17 +2,17 @@
  * Restore Functions
  */
 
-
 const {
   breakParent,
   concat,
   indent,
   dedent,
   softline,
-  hardline
+  hardline,
+  group
 } = require("prettier").doc.builders;
 const { PLACEHOLDER_REGEX } = require("./placeholders");
-const {isBuilderLine} = require('./helpers');
+const { isBuilderLine } = require("./helpers");
 
 function findKey(key, placeholderMap) {
   if (placeholderMap.has(key)) return key;
@@ -59,6 +59,91 @@ function findOriginal(part, placeholderMap) {
 const isWithinElementPlaceholder = part =>
   part.startsWith("o$") || part.startsWith("c$");
 
+function printWithinElement(arr, placeholderMap) {
+  // Find "blocks" and indent contents. Remember to support nested.
+  const parts = [];
+  let index = -1;
+
+  for (const part of arr) {
+    index++;
+
+    // Only care about placeholder strings
+    if (typeof part !== "string" || !isWithinElementPlaceholder(part)) {
+      parts.push(part);
+      continue;
+    }
+
+    const original = findOriginal(part, placeholderMap);
+
+    if (original) {
+      if (original.tagType === 1 || original.tagType === 3) {
+        parts.push(original.print);
+
+        // Capture parts until end tag found
+        const endPlaceholder = part.replace("o", "c");
+        let found = false;
+        let captureIndex = index;
+        const maxIndex = arr.length;
+        let captureCount = 0;
+
+        while (!found && captureIndex < maxIndex) {
+          captureIndex++;
+          captureCount++;
+
+          if (arr[captureIndex] === endPlaceholder) found = true;
+        }
+
+        const indentGroup = arr.splice(index + 1, captureCount).map(item =>
+          // Change all softlines to hardlines
+          typeof item === "object" && item.type === "line" ? hardline : item
+        );
+
+        const lastGroupItem = indentGroup[indentGroup.length - 1];
+        let closeGroup = hardline;
+
+        // Remove end placeholder if it's a fork
+        if (lastGroupItem === endPlaceholder) {
+          const originalLastGroupItem = findOriginal(
+            lastGroupItem,
+            placeholderMap
+          );
+
+          if (originalLastGroupItem.isFork) {
+            indentGroup.pop(); // Empty tag
+            indentGroup.pop(); // Extra line
+          } else if (originalLastGroupItem.tagType === 2) {
+            indentGroup.pop(); // End tag
+            indentGroup.pop(); // Extra line
+            closeGroup = concat([hardline, originalLastGroupItem.print]);
+          }
+        }
+
+        // Indent group
+        const doc = concat([
+          group(
+            indent(concat(printWithinElement(indentGroup, placeholderMap)))
+          ),
+          closeGroup
+        ]);
+
+        // Remove extra line
+        let deleteCount = 0;
+        if (isBuilderLine(arr[index + 1])) {
+          deleteCount = 1;
+        }
+
+        arr.splice(index + 1, deleteCount, doc);
+        continue;
+      }
+    }
+
+    // Fallback to doing nothing
+    parts.push(part);
+  }
+
+  return parts;
+}
+
 function mapRestoreTags(placeholderMap) {
   return function(doc) {
     if (!doc.parts) {
@@ -67,135 +152,46 @@ function mapRestoreTags(placeholderMap) {
 
     const arr = [...doc.parts];
 
-    // Markup with an element?
+    // Markup within an element?
     const isWithinElement = arr.some(part =>
       typeof part === "string" ? isWithinElementPlaceholder(part) : false
     );
-    // const depthStack = [];
 
     const parts = [];
+    if (isWithinElement) {
+      parts.push(...printWithinElement(arr, placeholderMap));
+    } else {
+      let index = -1;
 
-    let index = -1;
+      for (const part of arr) {
+        index++;
+        const original = findOriginal(part, placeholderMap);
 
-    for (const part of arr) {
-      index++;
-      const original = findOriginal(part, placeholderMap);
-
-      // These are usually within elements
-      if (original) {
-        // If within an element, we need to manage the indentation of blocks
-        if (isWithinElement && isWithinElementPlaceholder(part)) {
-          // TODO: Use enum export for TAG_BLOCK
-          if (original.tagType === 1) {
+        // These are usually within elements
+        if (original) {
+          if (original.print !== "") {
             parts.push(original.print);
-
-            // Capture parts until end tag found
-            const endPlaceholder = part.replace("o", "c");
-            let found = false;
-            let captureIndex = index;
-            const maxIndex = arr.length;
-            let captureCount = 0;
-
-            while (!found && captureIndex < maxIndex) {
-              captureIndex++;
-              captureCount++;
-
-              if (arr[captureIndex] === endPlaceholder) found = true;
-            }
-
-            const group = arr.splice(index + 1, captureCount);
-            const lastGroupItem = group[group.length - 1];
-
-            // Remove end placeholder
-            if (lastGroupItem === endPlaceholder) group.pop();
-
-            // Indent group
-            const doc = indent(concat(group));
-
-            // Remove extra line
-            let deleteCount = 0;
-            if (isBuilderLine(arr[index + 1])) arr[index + 1] = deleteCount = 1;
-
-            arr.splice(index + 1, deleteCount, doc);
             continue;
           }
-        }
 
-        if (original.print !== "") {
-          parts.push(original.print);
+          if (original.isFork && original.print === "") {
+            // If not within an element, end immediately to prevent excess blank lines
+            if (!original.withinElement) break;
+          }
+
           continue;
         }
 
-        if (original.isFork && original.print === "") {
-          // If not within an element, end immediately to prevent excess blank lines
-          if (!original.withinElement) break;
-        }
-
-        continue;
+        parts.push(part);
       }
 
-      // The whole array could be self-closing part
-      // const selfClosingPlaceholder = getSelfClosingPlaceholder(
-      //   {
-      //     parts: arr
-      //   },
-      //   placeholderMap
-      // );
-      //
-      // if (selfClosingPlaceholder) {
-      //   parts.push(selfClosingPlaceholder.print);
-      //
-      //   if (arr[nextIndex] === "/>") {
-      //     arr[nextIndex] = "";
-      //   }
-      //
-      //   break;
-      // }
-
-      parts.push(part);
-    }
-
-    if (parts.some(part => part === undefined)) {
-      throw Error("Cannot have undefined parts");
+      if (parts.some(part => part === undefined)) {
+        throw Error("Cannot have undefined parts");
+      }
     }
 
     return Object.assign({}, doc, { parts });
   };
-}
-
-function isSelfClosingPlaceholder(arr) {
-  if (!Array.isArray(arr) || !arr.length) {
-    return false;
-  }
-
-  const isOpeningGroup = arr[0].type === "group";
-  const isSelfClosing = arr[1] === "/>";
-
-  if (!isOpeningGroup || !isSelfClosing) {
-    return;
-  }
-
-  return PLACEHOLDER_REGEX.test(arr[0].contents.contents);
-}
-
-function getSelfClosingPlaceholder(doc, placeholderMap) {
-  if (typeof doc !== "object") {
-    return;
-  }
-
-  const { parts } = doc;
-
-  if (!parts) {
-    return;
-  }
-
-  const isPlaceholder = isSelfClosingPlaceholder(parts);
-  if (!isPlaceholder) {
-    return;
-  }
-
-  const placeholder = parts[0].contents.contents.trim();
-  return placeholderMap.get(placeholder);
 }
 
 module.exports = {
