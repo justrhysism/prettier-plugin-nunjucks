@@ -34,6 +34,7 @@ function findOriginal(part, placeholderMap) {
     key = findKey(part, placeholderMap);
   } else {
     // These are usually elements
+    // TODO: Split this out
     const partIsObject = typeof part === "object";
     const contentsIsString = partIsObject && typeof part.contents === "string";
     const contentsIsPlaceholder =
@@ -151,23 +152,38 @@ function mapRestoreTags(placeholderMap) {
     }
 
     const arr = [...doc.parts];
+    const parts = [];
 
     // Markup within an element?
     const isWithinElement = arr.some(part =>
       typeof part === "string" ? isWithinElementPlaceholder(part) : false
     );
 
-    const parts = [];
-    if (isWithinElement) {
+    // Self Closing
+    if (isSelfClosingPlaceholder(arr)) {
+      const selfClosingPlaceholder = getSelfClosingPlaceholder(
+        {
+          parts: arr
+        },
+        placeholderMap
+      );
+
+      parts.push(selfClosingPlaceholder.print);
+    }
+
+    // Within Element
+    else if (isWithinElement) {
       parts.push(...printWithinElement(arr, placeholderMap));
-    } else {
+    }
+
+    // Block (probably)
+    else {
       let index = -1;
 
       for (const part of arr) {
         index++;
         const original = findOriginal(part, placeholderMap);
 
-        // These are usually within elements
         if (original) {
           if (original.print !== "") {
             parts.push(original.print);
@@ -192,6 +208,43 @@ function mapRestoreTags(placeholderMap) {
 
     return Object.assign({}, doc, { parts });
   };
+}
+
+// TODO: Split out
+function isSelfClosingPlaceholder(arr) {
+  if (!Array.isArray(arr) || !arr.length) {
+    return false;
+  }
+
+  const isOpeningGroup = arr[0].type === "group";
+  const isSelfClosing = arr[1] === "/>";
+
+  if (!isOpeningGroup || !isSelfClosing) {
+    return;
+  }
+
+  return PLACEHOLDER_REGEX.test(arr[0].contents.contents);
+}
+
+// TODO: Split out
+function getSelfClosingPlaceholder(doc, placeholderMap) {
+  if (typeof doc !== "object") {
+    return;
+  }
+
+  const { parts } = doc;
+
+  if (!parts) {
+    return;
+  }
+
+  const isPlaceholder = isSelfClosingPlaceholder(parts);
+  if (!isPlaceholder) {
+    return;
+  }
+
+  const placeholder = parts[0].contents.contents.trim();
+  return placeholderMap.get(placeholder);
 }
 
 module.exports = {

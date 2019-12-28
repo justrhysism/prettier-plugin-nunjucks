@@ -55,6 +55,7 @@ const TAG_MAP = new Map([
   ["else", TAG_FORK],
   ["elseif", TAG_FORK],
   ["elif", TAG_FORK],
+  ["set", TAG_INLINE]
 ]);
 
 let placeholderId = 0;
