@@ -31,8 +31,14 @@ function buildPlaceholderTag(id, withinElement, type, nextId) {
       break;
     case TAG_FORK:
       const nextPid = `p${nextId}`;
-      placeholder = `${tagCloseStartChar}${pid}${tagOpenEndChar.replace('/', '')}${tagOpenStartChar}${nextPid}${tagOpenEndChar.replace('/', '')}`;
-      key = `${tagCloseStartChar}${pid}${tagOpenEndChar.replace('/', '')}`.trim();
+      placeholder = `${tagCloseStartChar}${pid}${tagOpenEndChar.replace(
+        "/",
+        ""
+      )}${tagOpenStartChar}${nextPid}${tagOpenEndChar.replace("/", "")}`;
+      key = `${tagCloseStartChar}${pid}${tagOpenEndChar.replace(
+        "/",
+        ""
+      )}`.trim();
       break;
     default:
       placeholder = `${tagOpenStartChar}${pid}${tagOpenEndChar}`;
@@ -45,17 +51,40 @@ function buildPlaceholderTag(id, withinElement, type, nextId) {
   };
 }
 
+function buildValue(value, options) {
+  if (typeof value !== "string") return value;
+
+  return value
+    .split(" ")
+    .filter(x => Boolean(x))
+    .join(" ");
+}
+
+// TODO: Split out
 const TAG_INLINE = 0;
 const TAG_BLOCK = 1;
 const TAG_END = 2;
 const TAG_FORK = 3;
 
+// TODO: Split out
 const TAG_MAP = new Map([
+  ["if", TAG_BLOCK],
+  ["for", TAG_BLOCK],
+  ["asyncEach", TAG_BLOCK],
+  ["asyncAll", TAG_BLOCK],
+  ["macro", TAG_BLOCK],
+  ["block", TAG_BLOCK],
+  ["raw", TAG_BLOCK],
+  ["verbatim", TAG_BLOCK],
+  ["filter", TAG_BLOCK],
+  ["call", TAG_BLOCK],
   ["set", TAG_INLINE],
+  ["extends", TAG_INLINE],
+  ["include", TAG_INLINE],
+  ["import", TAG_INLINE],
   ["else", TAG_FORK],
   ["elseif", TAG_FORK],
-  ["elif", TAG_FORK],
-  ["set", TAG_INLINE]
+  ["elif", TAG_FORK]
 ]);
 
 let placeholderId = 0;
@@ -112,7 +141,7 @@ function parse(text) {
             nextId = placeholderId++;
           }
         } else {
-          tagId = placeholderId++
+          tagId = placeholderId++;
         }
 
         const tagLength = end - start;
@@ -138,7 +167,7 @@ function parse(text) {
         // }
 
         // TODO: Rewrite value
-        token.print = `{% ${value} %}`; // TODO: Use configured tags
+        token.print = `{% ${buildValue(value, {})} %}`; // TODO: Use configured tags
 
         if (tagType === TAG_BLOCK || tagType === TAG_FORK) {
           tagStack.push(token);

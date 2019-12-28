@@ -4,7 +4,7 @@
 
 {% if foo5 %}<div><span>Foo</span></div>{% endif %}
 
-{% if foo7 %}{% set bar = 'true' %}{% endif %}
+{% if foo7 %}{% set bar = "true" %}{% endif %}
 
 <div {% if bar9 %}class="attribute"{% endif %}></div>
 <div {% if bar10 %}class="attribute"{%  else %}class="attribute"{% endif %}></div>
@@ -17,7 +17,7 @@
   {% if bar17 %}
   class="attribute"{% endif %}></div>
 
-<div {% if bar20 %}{{ attribute16 }}{% endif %}></div>
+<div {% if bar20 %}{{ attribute20 }}{% endif %}></div>
 
 <div>
 {% if foo23 %}<span>foo</span>{% endif %}
