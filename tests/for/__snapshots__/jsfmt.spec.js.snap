@@ -62,8 +62,17 @@ class="attribute"
 {% endall %}
 
 <div {% asyncAll item in items %} class="attribute" {% endall %}></div>
+<div
+  {% asyncAll item in items %}
+    class="attribute"
+  {% endall %}
+></div>
 
-<div {% asyncAll item in items %} class="attribute" {% endall %}></div>
+<div
+  {% asyncAll item in items %}
+    class="attribute"
+  {% endall %}
+></div>
 
 <div>
   {% asyncAll item in items %}
@@ -147,9 +156,17 @@ class="attribute"
   {% set bar = "true" %}
 {% endeach %}
 
-<div {% asyncEach item in items %} class="attribute" {% endeach %}></div>
+<div
+  {% asyncEach item in items %}
+    class="attribute"
+  {% endeach %}
+></div>
 
-<div {% asyncEach item in items %} class="attribute" {% endeach %}></div>
+<div
+  {% asyncEach item in items %}
+    class="attribute"
+  {% endeach %}
+></div>
 
 <div>
   {% asyncEach item in items %}
@@ -233,9 +250,17 @@ class="attribute"
   {% set bar = "true" %}
 {% endfor %}
 
-<div {% for item in items %} class="attribute" {% endfor %}></div>
+<div
+  {% for item in items %}
+    class="attribute"
+  {% endfor %}
+></div>
 
-<div {% for item in items %} class="attribute" {% endfor %}></div>
+<div
+  {% for item in items %}
+    class="attribute"
+  {% endfor %}
+></div>
 
 <div>
   {% for item in items %}
