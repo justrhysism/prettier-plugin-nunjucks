@@ -180,8 +180,6 @@ function parse(text) {
     const isVariable = variableRegex.test(value);
 
     if (type === "text") {
-      latestText = value.trim() ? value : latestText;
-
       // Text tag, check to see if it contains the variable opening tags
       if (isVariable) {
         const parsed = mustache.parse(value, variableTags);
@@ -202,6 +200,9 @@ function parse(text) {
 
           return parseTag(varToken, tagStack, varLatestText, true, variableTags);
         });
+      }
+      else {
+        latestText = value.trim() ? value : latestText;
       }
     } else {
       token = parseTag(token, tagStack, latestText);
