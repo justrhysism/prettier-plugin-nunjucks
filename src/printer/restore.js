@@ -11,7 +11,7 @@ const {
   hardline,
   group
 } = require("prettier").doc.builders;
-const { PLACEHOLDER_REGEX } = require("./placeholders");
+const { PLACEHOLDER_REGEX, ATTRIBUTE_PLACEHOLDER_REGEX } = require("./placeholders");
 const { isBuilderLine } = require("./helpers");
 
 function findKey(key, placeholderMap) {
@@ -57,10 +57,15 @@ function findOriginal(part, placeholderMap) {
   // console.warn("Unable to find original for placeholder:", key);
 }
 
-const isWithinElementPlaceholder = part =>
+const isElementAttributePlaceholder = part =>
+  // TODO: Pull strings from constants file
   part.startsWith("o$") || part.startsWith("c$");
 
-function printWithinElement(arr, placeholderMap) {
+const hasElementAttributePlaceholder = part =>
+  // TODO: Pull strings from constants file
+  part.includes("o$") || part.includes("c$");
+
+function printAttributePlaceholder(arr, placeholderMap) {
   // Find "blocks" and indent contents. Remember to support nested.
   const parts = [];
   let index = -1;
@@ -69,17 +74,49 @@ function printWithinElement(arr, placeholderMap) {
     index++;
 
     // Only care about placeholder strings
-    if (typeof part !== "string" || !isWithinElementPlaceholder(part)) {
+    if (typeof part !== "string" || !hasElementAttributePlaceholder(part)) {
       parts.push(part);
+      continue;
+    }
+
+    // Placeholder is within a string, break into parts and recurse
+    if (typeof part === "string" && !isElementAttributePlaceholder(part)) {
+      let partBreakdown = part;
+      const placeholders = part.match(ATTRIBUTE_PLACEHOLDER_REGEX);
+      const attributeParts = [];
+
+      while (placeholders.length) {
+        const placeholder = placeholders.shift();
+        const splitAttribute = partBreakdown.split(placeholder);
+
+        if (splitAttribute[0]) {
+          // Include the attribute part if it's not just whitespace
+          if (splitAttribute[0].trim()) {
+            attributeParts.push(splitAttribute[0]);
+          } else {
+            // If it's whitespace, it's a softline
+            attributeParts.push(" ");
+            attributeParts.push(softline);
+          }
+        }
+
+        attributeParts.push(placeholder);
+        partBreakdown = splitAttribute[1];
+
+        if (placeholders.length === 0) attributeParts.push(splitAttribute[1].trim());
+      }
+
+      const attributePartGroup = printAttributePlaceholder(attributeParts, placeholderMap);
+      parts.push(group(concat(attributePartGroup)));
       continue;
     }
 
     const original = findOriginal(part, placeholderMap);
 
     if (original) {
-      if (original.tagType === 1 || original.tagType === 3) {
-        parts.push(original.print);
+      parts.push(original.print);
 
+      if (original.tagType === 1 || original.tagType === 3) {
         // Capture parts until end tag found
         const endPlaceholder = part.replace("o", "c");
         let found = false;
@@ -122,7 +159,7 @@ function printWithinElement(arr, placeholderMap) {
         // Indent group
         const doc = concat([
           group(
-            indent(concat(printWithinElement(indentGroup, placeholderMap)))
+            indent(concat(printAttributePlaceholder(indentGroup, placeholderMap)))
           ),
           closeGroup
         ]);
@@ -134,8 +171,8 @@ function printWithinElement(arr, placeholderMap) {
         }
 
         arr.splice(index + 1, deleteCount, doc);
-        continue;
       }
+      continue;
     }
 
     // Fallback to doing nothing
@@ -155,8 +192,8 @@ function mapRestoreTags(placeholderMap) {
     const parts = [];
 
     // Markup within an element?
-    const isWithinElement = arr.some(part =>
-      typeof part === "string" ? isWithinElementPlaceholder(part) : false
+    const isisAttributePlaceholder = arr.some(part =>
+      typeof part === "string" ? hasElementAttributePlaceholder(part) : false
     );
 
     // Self Closing
@@ -169,11 +206,14 @@ function mapRestoreTags(placeholderMap) {
       );
 
       parts.push(selfClosingPlaceholder.print);
+
+      // Maintain whitespace if it's there.
+      if (arr[2] && arr[2].type === 'line') parts.push(arr[2]);
     }
 
     // Within Element
-    else if (isWithinElement) {
-      parts.push(...printWithinElement(arr, placeholderMap));
+    else if (isisAttributePlaceholder) {
+      parts.push(...printAttributePlaceholder(arr, placeholderMap));
     }
 
     // Block (probably)
@@ -192,7 +232,7 @@ function mapRestoreTags(placeholderMap) {
 
           if (original.isFork && original.print === "") {
             // If not within an element, end immediately to prevent excess blank lines
-            if (!original.withinElement) break;
+            if (!original.isAttributePlaceholder) break;
           }
 
           continue;

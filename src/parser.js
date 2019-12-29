@@ -9,17 +9,18 @@
 // const ast = require("./ast");
 
 const mustache = require("mustache");
+const flatMap = require("array.prototype.flatmap");
 
 // const env = new nunjucks.Environment();
 // env.addExtension('RemoteExtension', new RemoteExtension());
 
-function buildPlaceholderTag(id, withinElement, type, nextId) {
+function buildPlaceholderTag(id, isAttributePlaceholder, type, nextId) {
   const pid = `p${id}`;
   const keepLine = type === TAG_INLINE || type === TAG_FORK;
 
-  const tagOpenStartChar = withinElement ? "o$" : keepLine ? "<" : "\n<";
-  const tagOpenEndChar = withinElement ? " " : keepLine ? "/> " : ">\n";
-  const tagCloseStartChar = withinElement ? " c$" : `\n</`;
+  const tagOpenStartChar = isAttributePlaceholder ? "o$" : keepLine ? "<" : "\n<";
+  const tagOpenEndChar = isAttributePlaceholder ? " " : keepLine ? "/> " : ">\n";
+  const tagCloseStartChar = isAttributePlaceholder ? " c$" : `\n</`;
 
   let placeholder = "";
   let key = "";
@@ -52,7 +53,9 @@ function buildPlaceholderTag(id, withinElement, type, nextId) {
 }
 
 function buildValue(value, options) {
-  if (typeof value !== "string") return value;
+  if (typeof value !== "string") {
+    return value;
+  }
 
   return value
     .split(" ")
@@ -87,100 +90,125 @@ const TAG_MAP = new Map([
   ["elif", TAG_FORK]
 ]);
 
+function parseTag(token, tagStack, latestText, forceInline, tags = ["{%", "%}"]) {
+  const { type, value, start, end } = token;
+
+  // Parsed tag
+  if (type === "name") {
+    // TODO: Solidify
+    const tagName = value.split(" ")[0];
+
+    let tagType = forceInline ? TAG_INLINE : tagName.startsWith("end") ? TAG_END : TAG_MAP.get(tagName);
+    if (tagType === undefined) tagType = TAG_BLOCK;
+
+    let tagId;
+    let nextId;
+
+    const lastTagStartChar = latestText.lastIndexOf("<");
+    const lastTagEndChar = latestText.lastIndexOf(">");
+    let isAttributePlaceholder = lastTagStartChar > lastTagEndChar;
+
+    if (tagType === TAG_BLOCK && tagStack.length && !forceInline) {
+      // Support nested tags within an element
+      const endStackTag = tagStack[tagStack.length - 1];
+      isAttributePlaceholder = endStackTag.isAttributePlaceholder;
+    }
+
+    if (tagType === TAG_END || tagType === TAG_FORK && !forceInline) {
+      const offStackTag = tagStack.pop();
+      tagId = offStackTag.tagId;
+      isAttributePlaceholder = offStackTag.isAttributePlaceholder;
+
+      if (tagType === TAG_FORK) {
+        nextId = placeholderId++;
+      }
+    } else {
+      tagId = placeholderId++;
+    }
+
+    const tagLength = end - start;
+
+    const { placeholder, key } = buildPlaceholderTag(
+      tagId,
+      isAttributePlaceholder,
+      tagType,
+      nextId
+    );
+
+    token.type = "tag";
+    token.tag = tagName;
+    token.tagId = nextId || tagId;
+    token.tagType = tagType;
+    token.placeholder = placeholder;
+    token.key = key;
+    token.isAttributePlaceholder = isAttributePlaceholder;
+    token.isFork = tagType === TAG_FORK;
+
+    // TODO: Rewrite value
+    token.print = `${tags[0]} ${buildValue(value, {})} ${tags[1]}`; // TODO: Use configured tags
+
+    if (tagType === TAG_BLOCK || tagType === TAG_FORK) {
+      tagStack.push(token);
+    }
+  }
+
+  return token;
+}
+
 let placeholderId = 0;
 
 // args: text, parsers, options
 function parse(text) {
+  const variableTags = ["{{", "}}"];
   // const nunjParsed = nunjucks.parser.parse(text, env.extensionsList);
   const mustacheParsed = mustache.parse(text, ["{%", "%}"]);
+  const variableRegex = new RegExp(variableTags[0]);
 
   const tagStack = [];
   let latestText = "";
 
   // TODO: Split out
   // Handle tags
-  const parsedArray = mustacheParsed.map(
-    ([type, value, start, end], index, array) => {
-      const token = {
-        type,
-        value,
-        start,
-        end
-      };
+  return flatMap(mustacheParsed, ([type, value, start, end]) => {
+    let token = {
+      type,
+      value,
+      start,
+      end
+    };
 
-      if (type === "text") {
-        latestText = value;
-      } else if (type === "name") {
-        // TODO: Solidify
-        const tagName = value.split(" ")[0];
+    const isVariable = variableRegex.test(value);
 
-        let tagType = tagName.startsWith("end")
-          ? TAG_END
-          : TAG_MAP.get(tagName);
-        if (tagType === undefined) tagType = TAG_BLOCK;
+    if (type === "text") {
+      latestText = value.trim() ? value : latestText;
 
-        let tagId;
-        let nextId;
+      // Text tag, check to see if it contains the variable opening tags
+      if (isVariable) {
+        const parsed = mustache.parse(value, variableTags);
+        let varLatestText = latestText;
 
-        const lastTagStartChar = latestText.lastIndexOf("<");
-        const lastTagEndChar = latestText.lastIndexOf(">");
-        let withinElement = lastTagStartChar > lastTagEndChar;
+        return parsed.map(([type, value, start, end]) => {
+          const varToken = {
+            type,
+            value,
+            start,
+            end
+          };
 
-        if (tagType === TAG_BLOCK && tagStack.length) {
-          // Support nested tags within an element
-          const endStackTag = tagStack[tagStack.length - 1];
-          withinElement = endStackTag.withinElement;
-        }
-
-        if (tagType === TAG_END || tagType === TAG_FORK) {
-          const offStackTag = tagStack.pop();
-          tagId = offStackTag.tagId;
-          withinElement = offStackTag.withinElement;
-
-          if (tagType === TAG_FORK) {
-            nextId = placeholderId++;
+          if (type === 'text') {
+            varLatestText = value.trim() ? value : varLatestText;
+            return varToken;
           }
-        } else {
-          tagId = placeholderId++;
-        }
 
-        const tagLength = end - start;
-
-        const { placeholder, key } = buildPlaceholderTag(
-          tagId,
-          withinElement,
-          tagType,
-          nextId
-        );
-
-        token.type = "tag";
-        token.tag = tagName;
-        token.tagId = nextId || tagId;
-        token.tagType = tagType;
-        token.placeholder = placeholder;
-        token.key = key;
-        token.withinElement = withinElement;
-        token.isFork = tagType === TAG_FORK;
-
-        // if (token.isFork) {
-        //   token.forkBlockId = tagId;
-        // }
-
-        // TODO: Rewrite value
-        token.print = `{% ${buildValue(value, {})} %}`; // TODO: Use configured tags
-
-        if (tagType === TAG_BLOCK || tagType === TAG_FORK) {
-          tagStack.push(token);
-        }
+          return parseTag(varToken, tagStack, varLatestText, true, variableTags);
+        });
       }
-
-      return token;
+    } else {
+      token = parseTag(token, tagStack, latestText);
     }
-  );
 
-  // const normalised = ast.normalize(nunjParsed);
-  // normalised.raw = text;
-  return parsedArray;
+    return token;
+  });
 }
 
 function locStart(node) {

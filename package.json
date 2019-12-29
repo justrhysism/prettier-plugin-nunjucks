@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@babel/core": "^7.7.7",
+    "array.prototype.flatmap": "^1.2.3",
     "jest-snapshot-serializer-raw": "^1.1.0",
     "mustache": "^3.2.0",
     "nunjucks": "^3.1.7"

@@ -4,10 +4,11 @@
 
 
 const PLACEHOLDER_REGEX = /p\d+/;
+const ATTRIBUTE_PLACEHOLDER_REGEX = /([oc])\$p(\d+)/g;
 
 function mapPlaceholders(templateArray, placeholderMap) {
   return templateArray.reduce((acc, token) => {
-    const { type, value, placeholder, isFork, withinElement } = token;
+    const { type, value, placeholder, isFork, isAttributePlaceholder } = token;
     let { key } = token;
 
     if (type === "tag") {
@@ -20,7 +21,7 @@ function mapPlaceholders(templateArray, placeholderMap) {
         placeholderMap.set(forkElement1, {
           print: "",
           isFork,
-          withinElement
+          isAttributePlaceholder
         });
       }
 
@@ -34,5 +35,6 @@ function mapPlaceholders(templateArray, placeholderMap) {
 
 module.exports = {
   PLACEHOLDER_REGEX,
+  ATTRIBUTE_PLACEHOLDER_REGEX,
   mapPlaceholders
 };
