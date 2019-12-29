@@ -192,7 +192,7 @@ function mapRestoreTags(placeholderMap) {
     const parts = [];
 
     // Markup within an element?
-    const isisAttributePlaceholder = arr.some(part =>
+    const isAttributePlaceholder = arr.some(part =>
       typeof part === "string" ? hasElementAttributePlaceholder(part) : false
     );
 
@@ -212,7 +212,7 @@ function mapRestoreTags(placeholderMap) {
     }
 
     // Within Element
-    else if (isisAttributePlaceholder) {
+    else if (isAttributePlaceholder) {
       parts.push(...printAttributePlaceholder(arr, placeholderMap));
     }
 
