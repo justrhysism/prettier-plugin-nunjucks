@@ -74,15 +74,31 @@ Foobar
 {% endblock %}
 
 {% block foo7 %}
-  {% set bar = "true" %}
+  {% set bar = 'true' %}
 {% endblock %}
 
-<div {% block bar9 %} class="attribute" {% endblock %}></div>
-<div {% block bar10 %} class="attribute" {% endblock %}></div>
+<div
+  {% block bar9 %}
+    class="attribute"
+  {% endblock %}
+></div>
+<div
+  {% block bar10 %}
+    class="attribute"
+  {% endblock %}
+></div>
 
-<div {% block bar13 %} class="attribute" {% endblock %}></div>
+<div
+  {% block bar13 %}
+    class="attribute"
+  {% endblock %}
+></div>
 
-<div {% block bar16 %} {{ attribute16 }} {% endblock %}></div>
+<div
+  {% block bar16 %}
+    {{ attribute16 }}
+  {% endblock %}
+></div>
 
 <div>
   {% block foo19 %}
@@ -117,8 +133,16 @@ Foobar
   {% endblock %}
 {% endblock %}
 
-<div {% block bar54 %} {{ value55 }} {% endblock %}></div>
-<div {% block bar57 %} {{ value57 }} {% endblock %}></div>
+<div
+  {% block bar54 %}
+    {{ value55 }}
+  {% endblock %}
+></div>
+<div
+  {% block bar57 %}
+    {{ value57 }}
+  {% endblock %}
+></div>
 
 {% block foo61 %}
   {{ value62 }}
