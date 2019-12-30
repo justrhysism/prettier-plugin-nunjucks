@@ -85,6 +85,7 @@ const TAG_MAP = new Map([
   ["extends", TAG_INLINE],
   ["include", TAG_INLINE],
   ["import", TAG_INLINE],
+  ["from", TAG_INLINE],
   ["else", TAG_FORK],
   ["elseif", TAG_FORK],
   ["elif", TAG_FORK]

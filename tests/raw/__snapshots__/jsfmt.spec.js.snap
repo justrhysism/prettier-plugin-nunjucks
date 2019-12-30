@@ -1,19 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`extends.njk 1`] = `
+exports[`raw.njk 1`] = `
 ====================================options=====================================
 parsers: ["nunjucks"]
 printWidth: 80
                                                                                 | printWidth
 =====================================input======================================
-{% extends "base.html" %}
-{% extends parentTemplate %}
-{% extends name + ".html" %}
+{% raw %}{{ raw_output }}{% endraw %}
+
+{% raw %}
+foo {{ bar }}
+  {% endraw %}
 
 =====================================output=====================================
-{% extends "base.html" %}
-{% extends parentTemplate %}
-{% extends name + ".html" %}
+{% raw %}
+  {{ raw_output }}
+{% endraw %}
+
+{% raw %} foo {{ bar }} {% endraw %}
 
 ================================================================================
 `;

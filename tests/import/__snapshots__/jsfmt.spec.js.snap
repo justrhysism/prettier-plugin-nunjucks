@@ -8,13 +8,12 @@ printWidth: 80
 =====================================input======================================
 {% import "forms.html" as forms %}
 {% from "forms.html" import field, label as description %}
-{% import name + '.html' as    obj %}
+{% import name + ".html" as    obj %}
 
 =====================================output=====================================
 {% import "forms.html" as forms %}
 {% from "forms.html" import field, label as description %}
 {% import name + ".html" as obj %}
-
 
 ================================================================================
 `;
