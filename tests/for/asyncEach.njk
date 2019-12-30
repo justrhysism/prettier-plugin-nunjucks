@@ -8,7 +8,7 @@
 
 {% asyncEach item in items %} <div><span>Foo</span></div> {% endeach %}
 
-{% asyncEach item in items %}{% set bar = 'true' %}{% endeach %}
+{% asyncEach item in items %}{% set bar = "true" %}{% endeach %}
 
 <div {% asyncEach item in items %}class="attribute"{% endeach %}></div>
 

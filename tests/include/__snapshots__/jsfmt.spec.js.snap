@@ -1,6 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`include.njk - nunjucks-verify: include.njk 1`] = `
+exports[`include.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 {% include "item.html" %}
 
 {% for item in items %}
@@ -10,7 +15,8 @@ exports[`include.njk - nunjucks-verify: include.njk 1`] = `
 {% include name + ".html" %}
 
 {% include "missing.html" ignore missing %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 {% include "item.html" %}
 
 {% for item in items %}
@@ -21,4 +27,5 @@ exports[`include.njk - nunjucks-verify: include.njk 1`] = `
 
 {% include "missing.html" ignore missing %}
 
+================================================================================
 `;

@@ -1,6 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`asyncAll.njk - nunjucks-verify: asyncAll.njk 1`] = `
+exports[`asyncAll.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 <div>Foo</div>
 
 {% asyncAll item in items %}
@@ -11,7 +16,7 @@ exports[`asyncAll.njk - nunjucks-verify: asyncAll.njk 1`] = `
 
 {% asyncAll item in items %} <div><span>Foo</span></div> {% endall %}
 
-{% asyncAll item in items %}{% set bar = 'true' %}{% endall %}
+{% asyncAll item in items %}{% set bar = "true" %}{% endall %}
 
 <div {% asyncAll item in items %}class="attribute"{% endall %}></div>
 
@@ -36,7 +41,8 @@ class="attribute"
 {% asyncAll item2 in items2 %}
 {% endall %}
 {% endall %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 <div>Foo</div>
 
 {% asyncAll item in items %}
@@ -55,9 +61,17 @@ class="attribute"
   {% set bar = "true" %}
 {% endall %}
 
-<div {% asyncAll item in items %} class="attribute" {% endall %}></div>
+<div
+  {% asyncAll item in items %}
+    class="attribute"
+  {% endall %}
+></div>
 
-<div {% asyncAll item in items %} class="attribute" {% endall %}></div>
+<div
+  {% asyncAll item in items %}
+    class="attribute"
+  {% endall %}
+></div>
 
 <div>
   {% asyncAll item in items %}
@@ -77,9 +91,15 @@ class="attribute"
   {% asyncAll item2 in items2 %} {% endall %}
 {% endall %}
 
+================================================================================
 `;
 
-exports[`asyncEach.njk - nunjucks-verify: asyncEach.njk 1`] = `
+exports[`asyncEach.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 <div>Foo</div>
 
 {% asyncEach item in items %}
@@ -90,7 +110,7 @@ exports[`asyncEach.njk - nunjucks-verify: asyncEach.njk 1`] = `
 
 {% asyncEach item in items %} <div><span>Foo</span></div> {% endeach %}
 
-{% asyncEach item in items %}{% set bar = 'true' %}{% endeach %}
+{% asyncEach item in items %}{% set bar = "true" %}{% endeach %}
 
 <div {% asyncEach item in items %}class="attribute"{% endeach %}></div>
 
@@ -115,7 +135,8 @@ class="attribute"
 {% asyncEach item2 in items2 %}
 {% endeach %}
 {% endeach %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 <div>Foo</div>
 
 {% asyncEach item in items %}
@@ -134,9 +155,17 @@ class="attribute"
   {% set bar = "true" %}
 {% endeach %}
 
-<div {% asyncEach item in items %} class="attribute" {% endeach %}></div>
+<div
+  {% asyncEach item in items %}
+    class="attribute"
+  {% endeach %}
+></div>
 
-<div {% asyncEach item in items %} class="attribute" {% endeach %}></div>
+<div
+  {% asyncEach item in items %}
+    class="attribute"
+  {% endeach %}
+></div>
 
 <div>
   {% asyncEach item in items %}
@@ -156,9 +185,15 @@ class="attribute"
   {% asyncEach item2 in items2 %} {% endeach %}
 {% endeach %}
 
+================================================================================
 `;
 
-exports[`for.njk - nunjucks-verify: for.njk 1`] = `
+exports[`for.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 <div>Foo</div>
 
 {% for item in items %}
@@ -169,7 +204,7 @@ exports[`for.njk - nunjucks-verify: for.njk 1`] = `
 
 {% for item in items %} <div><span>Foo</span></div> {% endfor %}
 
-{% for item in items %}{% set bar = 'true' %}{% endfor %}
+{% for item in items %}{% set bar = "true" %}{% endfor %}
 
 <div {% for item in items %}class="attribute"{% endfor %}></div>
 
@@ -194,7 +229,8 @@ class="attribute"
 {% for item2 in items2 %}
 {% endfor %}
 {% endfor %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 <div>Foo</div>
 
 {% for item in items %}
@@ -213,9 +249,17 @@ class="attribute"
   {% set bar = "true" %}
 {% endfor %}
 
-<div {% for item in items %} class="attribute" {% endfor %}></div>
+<div
+  {% for item in items %}
+    class="attribute"
+  {% endfor %}
+></div>
 
-<div {% for item in items %} class="attribute" {% endfor %}></div>
+<div
+  {% for item in items %}
+    class="attribute"
+  {% endfor %}
+></div>
 
 <div>
   {% for item in items %}
@@ -235,4 +279,5 @@ class="attribute"
   {% for item2 in items2 %} {% endfor %}
 {% endfor %}
 
+================================================================================
 `;

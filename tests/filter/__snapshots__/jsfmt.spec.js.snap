@@ -1,19 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`extends.njk 1`] = `
+exports[`filter.njk 1`] = `
 ====================================options=====================================
 parsers: ["nunjucks"]
 printWidth: 80
                                                                                 | printWidth
 =====================================input======================================
-{% extends "base.html" %}
-{% extends parentTemplate %}
-{% extends name + ".html" %}
+{% filter title %}
+may the force be with you
+{% endfilter %}
+
+{% filter replace("force", "forth") %}
+may the force be with you
+{% endfilter %}
 
 =====================================output=====================================
-{% extends "base.html" %}
-{% extends parentTemplate %}
-{% extends name + ".html" %}
+{% filter title %}
+  may the force be with you
+{% endfilter %}
+
+{% filter replace("force", "forth") %}
+  may the force be with you
+{% endfilter %}
 
 ================================================================================
 `;

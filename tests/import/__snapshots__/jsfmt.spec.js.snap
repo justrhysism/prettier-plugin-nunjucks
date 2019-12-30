@@ -1,12 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`import.njk - nunjucks-verify: import.njk 1`] = `
+exports[`import.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 {% import "forms.html" as forms %}
 {% from "forms.html" import field, label as description %}
-{% import name + '.html' as    obj %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{% import name + ".html" as    obj %}
+
+=====================================output=====================================
 {% import "forms.html" as forms %}
 {% from "forms.html" import field, label as description %}
 {% import name + ".html" as obj %}
 
+================================================================================
 `;

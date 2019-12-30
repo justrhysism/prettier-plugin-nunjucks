@@ -78,10 +78,10 @@ global.run_spec = (dirname, parsers, options) => {
           createSnapshot(
             hasEndOfLine
               ? visualizeEndOfLine(
-              text
-                .replace(RANGE_START_PLACEHOLDER, "")
-                .replace(RANGE_END_PLACEHOLDER, "")
-              )
+                  text
+                    .replace(RANGE_START_PLACEHOLDER, "")
+                    .replace(RANGE_END_PLACEHOLDER, "")
+                )
               : source,
             hasEndOfLine ? visualizedOutput : output,
             Object.assign({}, baseOptions, { parsers })
@@ -131,8 +131,8 @@ function format(source, filename, options) {
 
   return options.cursorOffset >= 0
     ? result.formatted.slice(0, result.cursorOffset) +
-    CURSOR_PLACEHOLDER +
-    result.formatted.slice(result.cursorOffset)
+        CURSOR_PLACEHOLDER +
+        result.formatted.slice(result.cursorOffset)
     : result.formatted;
 }
 
@@ -200,8 +200,8 @@ function printOptions(options) {
     return value === Infinity
       ? "Infinity"
       : Array.isArray(value)
-        ? `[${value.map(v => JSON.stringify(v)).join(", ")}]`
-        : JSON.stringify(value);
+      ? `[${value.map(v => JSON.stringify(v)).join(", ")}]`
+      : JSON.stringify(value);
   }
 }
 

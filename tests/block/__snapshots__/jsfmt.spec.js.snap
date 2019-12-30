@@ -1,6 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`block.njk - nunjucks-verify: block.njk 1`] = `
+exports[`block.njk 1`] = `
+====================================options=====================================
+parsers: ["nunjucks"]
+printWidth: 80
+                                                                                | printWidth
+=====================================input======================================
 <div>Foo</div>
 
 {% block foo3 %}<span></span>{% endblock %}
@@ -56,7 +61,8 @@ Foobar
 {% block foo61 %}
 {{ value62 }}
 {% endblock %}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=====================================output=====================================
 <div>Foo</div>
 
 {% block foo3 %}
@@ -68,15 +74,31 @@ Foobar
 {% endblock %}
 
 {% block foo7 %}
-  {% set bar = "true" %}
+  {% set bar = 'true' %}
 {% endblock %}
 
-<div {% block bar9 %} class="attribute" {% endblock %}></div>
-<div {% block bar10 %} class="attribute" {% endblock %}></div>
+<div
+  {% block bar9 %}
+    class="attribute"
+  {% endblock %}
+></div>
+<div
+  {% block bar10 %}
+    class="attribute"
+  {% endblock %}
+></div>
 
-<div {% block bar13 %} class="attribute" {% endblock %}></div>
+<div
+  {% block bar13 %}
+    class="attribute"
+  {% endblock %}
+></div>
 
-<div {% block bar16 %} {{ attribute16 }} {% endblock %}></div>
+<div
+  {% block bar16 %}
+    {{ attribute16 }}
+  {% endblock %}
+></div>
 
 <div>
   {% block foo19 %}
@@ -111,11 +133,20 @@ Foobar
   {% endblock %}
 {% endblock %}
 
-<div {% block bar54 %} {{ value55 }} {% endblock %}></div>
-<div {% block bar57 %} {{ value57 }} {% endblock %}></div>
+<div
+  {% block bar54 %}
+    {{ value55 }}
+  {% endblock %}
+></div>
+<div
+  {% block bar57 %}
+    {{ value57 }}
+  {% endblock %}
+></div>
 
 {% block foo61 %}
   {{ value62 }}
 {% endblock %}
 
+================================================================================
 `;

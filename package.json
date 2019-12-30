@@ -2,7 +2,10 @@
   "name": "prettier-plugin-nunjucks",
   "version": "0.0.1",
   "dependencies": {
+    "@babel/core": "^7.7.7",
+    "array.prototype.flatmap": "^1.2.3",
     "jest-snapshot-serializer-raw": "^1.1.0",
+    "mustache": "^3.2.0",
     "nunjucks": "^3.1.7"
   },
   "description": "Nunjucks plugin for Prettier",
@@ -33,7 +36,7 @@
     "jest": "24.9.0",
     "jest-runner-eslint": "0.7.5",
     "jest-snapshot-serializer-raw": "^1.1.0",
-    "prettier": "^1.16.0",
+    "prettier": "^1.19.0",
     "rollup": "^1.1.2",
     "rollup-plugin-alias": "^2.0.0",
     "rollup-plugin-babel": "^4.3.2",
@@ -46,7 +49,7 @@
     "strip-ansi": "^6.0.0"
   },
   "peerDependencies": {
-    "prettier": "^1.16.0"
+    "prettier": "^1.19.0"
   },
   "jest": {
     "projects": [
