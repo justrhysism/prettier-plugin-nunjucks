@@ -9,13 +9,13 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 
 - [x] if
   - [x] else
-  - [ ] elif
+  - [x] elif
   - [ ] expression (e.g. `{% if foo === bar %}`)
   - [ ] [logic](https://mozilla.github.io/nunjucks/templating.html#logic)
 - [x] for
 - [x] asyncEach
 - [x] asyncAll
-- [ ] macro
+- [x] macro
 - [x] set
   - [x] basic
   - [x] multiple assignment
@@ -25,11 +25,11 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 - [x] block
 - [x] include
 - [x] import
-- [ ] raw
-- [ ] verbatim
-- [ ] filter
+- [x] raw
+- [x] verbatim
+- [x] filter
 - [ ] call
-- [ ] _custom_
+- [x] _custom_
 
 ### Templating
 
@@ -44,9 +44,9 @@ This plugin is so far from ready it might as well be on the moon. **Contribution
 ### Options
 - [ ] Accept Prettier options for consistency
   - [ ] Quote marks
-- [ ] Accept Nunjucks options for tags etc.
+- [x] Accept Nunjucks options for tags etc.
 
 ### Code
 
-- [ ] Refactor
 - [ ] Cleanup
+- [ ] Refactor
