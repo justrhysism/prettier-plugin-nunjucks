@@ -15,7 +15,7 @@ const nunjucks = require("nunjucks/src/parser");
 */
 
 function RemoteExtension() {
-  this.tags = ['remote'];
+  this.tags = ["remote"];
 
   this.parse = function(parser, nodes, lexer) {
     // get the tag token
@@ -27,23 +27,25 @@ function RemoteExtension() {
     parser.advanceAfterBlockEnd(tok.value);
 
     // parse the body and possibly the error block, which is optional
-    var body = parser.parseUntilBlocks('error', 'endremote');
+    var body = parser.parseUntilBlocks("error", "endremote");
     var errorBody = null;
 
-    if(parser.skipSymbol('error')) {
+    if (parser.skipSymbol("error")) {
       parser.skip(lexer.TOKEN_BLOCK_END);
-      errorBody = parser.parseUntilBlocks('endremote');
+      errorBody = parser.parseUntilBlocks("endremote");
     }
 
     parser.advanceAfterBlockEnd();
 
     // See above for notes about CallExtension
-    return new nodes.CallExtension(this, 'run', args, [body, errorBody]);
+    return new nodes.CallExtension(this, "run", args, [body, errorBody]);
   };
 
   this.run = function(context, url, body, errorBody) {
-    var id = 'el' + Math.floor(Math.random() * 10000);
-    var ret = new nunjucks.runtime.SafeString('<div id="' + id + '">' + body() + '</div>');
+    var id = "el" + Math.floor(Math.random() * 10000);
+    var ret = new nunjucks.runtime.SafeString(
+      '<div id="' + id + '">' + body() + "</div>"
+    );
     // var ajax = new XMLHttpRequest();
     //
     // ajax.onreadystatechange = function() {
@@ -65,4 +67,3 @@ function RemoteExtension() {
 }
 
 module.exports = RemoteExtension;
-

@@ -2,7 +2,6 @@
  * Placeholder Functions
  */
 
-
 const PLACEHOLDER_REGEX = /p\d+/;
 const ATTRIBUTE_PLACEHOLDER_REGEX = /([oc])\$p(\d+)/g;
 

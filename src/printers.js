@@ -13,8 +13,8 @@ const {
   getValue,
   isBuilderLine
 } = require("./printer/helpers");
-const { mapRestoreTags } = require('./printer/restore');
-const { mapPlaceholders } = require('./printer/placeholders');
+const { mapRestoreTags } = require("./printer/restore");
+const { mapPlaceholders } = require("./printer/placeholders");
 
 const { concat, dedent, hardline } = require("prettier").doc.builders;
 const { mapDoc } = require("prettier").doc.utils;

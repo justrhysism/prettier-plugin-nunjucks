@@ -11,7 +11,10 @@ const {
   hardline,
   group
 } = require("prettier").doc.builders;
-const { PLACEHOLDER_REGEX, ATTRIBUTE_PLACEHOLDER_REGEX } = require("./placeholders");
+const {
+  PLACEHOLDER_REGEX,
+  ATTRIBUTE_PLACEHOLDER_REGEX
+} = require("./placeholders");
 const { isBuilderLine } = require("./helpers");
 
 function findKey(key, placeholderMap) {
@@ -103,10 +106,14 @@ function printAttributePlaceholder(arr, placeholderMap) {
         attributeParts.push(placeholder);
         partBreakdown = splitAttribute[1];
 
-        if (placeholders.length === 0) attributeParts.push(splitAttribute[1].trim());
+        if (placeholders.length === 0)
+          attributeParts.push(splitAttribute[1].trim());
       }
 
-      const attributePartGroup = printAttributePlaceholder(attributeParts, placeholderMap);
+      const attributePartGroup = printAttributePlaceholder(
+        attributeParts,
+        placeholderMap
+      );
       parts.push(group(concat(attributePartGroup)));
       continue;
     }
@@ -159,7 +166,9 @@ function printAttributePlaceholder(arr, placeholderMap) {
         // Indent group
         const doc = concat([
           group(
-            indent(concat(printAttributePlaceholder(indentGroup, placeholderMap)))
+            indent(
+              concat(printAttributePlaceholder(indentGroup, placeholderMap))
+            )
           ),
           closeGroup
         ]);
@@ -208,7 +217,7 @@ function mapRestoreTags(placeholderMap) {
       parts.push(selfClosingPlaceholder.print);
 
       // Maintain whitespace if it's there.
-      if (arr[2] && arr[2].type === 'line') parts.push(arr[2]);
+      if (arr[2] && arr[2].type === "line") parts.push(arr[2]);
     }
 
     // Within Element

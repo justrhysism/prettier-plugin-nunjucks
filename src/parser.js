@@ -18,8 +18,16 @@ function buildPlaceholderTag(id, isAttributePlaceholder, type, nextId) {
   const pid = `p${id}`;
   const keepLine = type === TAG_INLINE || type === TAG_FORK;
 
-  const tagOpenStartChar = isAttributePlaceholder ? "o$" : keepLine ? "<" : "\n<";
-  const tagOpenEndChar = isAttributePlaceholder ? " " : keepLine ? "/> " : ">\n";
+  const tagOpenStartChar = isAttributePlaceholder
+    ? "o$"
+    : keepLine
+    ? "<"
+    : "\n<";
+  const tagOpenEndChar = isAttributePlaceholder
+    ? " "
+    : keepLine
+    ? "/> "
+    : ">\n";
   const tagCloseStartChar = isAttributePlaceholder ? " c$" : `\n</`;
 
   let placeholder = "";
@@ -91,7 +99,13 @@ const TAG_MAP = new Map([
   ["elif", TAG_FORK]
 ]);
 
-function parseTag(token, tagStack, latestText, forceInline, tags = ["{%", "%}"]) {
+function parseTag(
+  token,
+  tagStack,
+  latestText,
+  forceInline,
+  tags = ["{%", "%}"]
+) {
   const { type, value, start, end } = token;
 
   // Parsed tag
@@ -99,7 +113,11 @@ function parseTag(token, tagStack, latestText, forceInline, tags = ["{%", "%}"])
     // TODO: Solidify
     const tagName = value.split(" ")[0];
 
-    let tagType = forceInline ? TAG_INLINE : tagName.startsWith("end") ? TAG_END : TAG_MAP.get(tagName);
+    let tagType = forceInline
+      ? TAG_INLINE
+      : tagName.startsWith("end")
+      ? TAG_END
+      : TAG_MAP.get(tagName);
     if (tagType === undefined) tagType = TAG_BLOCK;
 
     let tagId;
@@ -115,7 +133,7 @@ function parseTag(token, tagStack, latestText, forceInline, tags = ["{%", "%}"])
       isAttributePlaceholder = endStackTag.isAttributePlaceholder;
     }
 
-    if (tagType === TAG_END || tagType === TAG_FORK && !forceInline) {
+    if (tagType === TAG_END || (tagType === TAG_FORK && !forceInline)) {
       const offStackTag = tagStack.pop();
       tagId = offStackTag.tagId;
       isAttributePlaceholder = offStackTag.isAttributePlaceholder;
@@ -194,15 +212,20 @@ function parse(text) {
             end
           };
 
-          if (type === 'text') {
+          if (type === "text") {
             varLatestText = value.trim() ? value : varLatestText;
             return varToken;
           }
 
-          return parseTag(varToken, tagStack, varLatestText, true, variableTags);
+          return parseTag(
+            varToken,
+            tagStack,
+            varLatestText,
+            true,
+            variableTags
+          );
         });
-      }
-      else {
+      } else {
         latestText = value.trim() ? value : latestText;
       }
     } else {
