@@ -4,19 +4,8 @@
 
 "use strict";
 
-const { printVariable } = require("./printer/variables");
-const {
-  isBlockTag,
-  hasElse,
-  getOpenTagName,
-  getCloseTagName,
-  getValue,
-  isBuilderLine
-} = require("./printer/helpers");
 const { mapRestoreTags } = require("./printer/restore");
 const { mapPlaceholders } = require("./printer/placeholders");
-
-const { concat, dedent, hardline } = require("prettier").doc.builders;
 const { mapDoc } = require("prettier").doc.utils;
 
 let hoistedTextToDoc;

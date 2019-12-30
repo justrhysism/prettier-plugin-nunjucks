@@ -6,7 +6,6 @@ const {
   breakParent,
   concat,
   indent,
-  dedent,
   softline,
   hardline,
   group
