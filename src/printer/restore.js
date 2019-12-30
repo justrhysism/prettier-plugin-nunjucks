@@ -226,7 +226,11 @@ function mapRestoreTags(placeholderMap) {
 
         if (original) {
           if (original.print !== "") {
-            parts.push(original.print);
+            if (original.isFork) {
+              parts.push(concat([original.print, breakParent]));
+            } else {
+              parts.push(original.print);
+            }
             continue;
           }
 

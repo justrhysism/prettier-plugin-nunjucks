@@ -161,7 +161,9 @@ printWidth: 80
   {% endif %}
 {% endif %}
 
-{% if bar35 %} {% else %} {% endif %}
+{% if bar35 %}
+{% else %}
+{% endif %}
 
 {% if bar39 %}
   {{ value40 }}
@@ -169,7 +171,9 @@ printWidth: 80
   {{ value42 }}
 {% endif %}
 
-{% if bar45 %} {% else %} {% endif %}
+{% if bar45 %}
+{% else %}
+{% endif %}
 
 {% if foo47 %}
   {% if bar48 %}

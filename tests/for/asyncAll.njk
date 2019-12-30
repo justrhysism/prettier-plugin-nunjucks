@@ -8,7 +8,7 @@
 
 {% asyncAll item in items %} <div><span>Foo</span></div> {% endall %}
 
-{% asyncAll item in items %}{% set bar = 'true' %}{% endall %}
+{% asyncAll item in items %}{% set bar = "true" %}{% endall %}
 
 <div {% asyncAll item in items %}class="attribute"{% endall %}></div>
 
