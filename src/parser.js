@@ -104,7 +104,8 @@ function parseTag(
   tagStack,
   latestText,
   forceInline,
-  tags = ["{%", "%}"]
+  tags = ["{%", "%}"],
+  tagMap = new Map()
 ) {
   const { type, value, start, end } = token;
 
@@ -117,7 +118,7 @@ function parseTag(
       ? TAG_INLINE
       : tagName.startsWith("end")
       ? TAG_END
-      : TAG_MAP.get(tagName);
+      : tagMap.get(tagName);
     if (tagType === undefined) tagType = TAG_BLOCK;
 
     let tagId;
@@ -177,11 +178,16 @@ function parseTag(
 let placeholderId = 0;
 
 // args: text, parsers, options
-function parse(text) {
+function parse(text, parsers, options) {
   const variableTags = ["{{", "}}"];
   // const nunjParsed = nunjucks.parser.parse(text, env.extensionsList);
   const mustacheParsed = mustache.parse(text, ["{%", "%}"]);
   const variableRegex = new RegExp(variableTags[0]);
+
+  const tagMap = new Map(TAG_MAP);
+  options.blockTags.forEach(t => tagMap.set(t, TAG_BLOCK));
+  options.inlineTags.forEach(t => tagMap.set(t, TAG_INLINE));
+  options.forkTags.forEach(t => tagMap.set(t, TAG_FORK));
 
   const tagStack = [];
   let latestText = "";
@@ -222,14 +228,22 @@ function parse(text) {
             tagStack,
             varLatestText,
             true,
-            variableTags
+            variableTags,
+            tagMap
           );
         });
       } else {
         latestText = value.trim() ? value : latestText;
       }
     } else {
-      token = parseTag(token, tagStack, latestText);
+      token = parseTag(
+        token,
+        tagStack,
+        latestText,
+        false,
+        ["{%", "%}"],
+        tagMap
+      );
     }
 
     return token;

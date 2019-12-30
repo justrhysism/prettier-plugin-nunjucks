@@ -4,11 +4,12 @@
 
 "use strict";
 
+const options = require("./options");
 const parser = require("./parser");
 const printers = require("./printers");
 
 module.exports = {
-  options: {},
+  options,
   defaultOptions: {},
   parsers: {
     nunjucks: parser
